@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>eBay Quick Lister</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- jsQR: pure JS barcode decoder, no native API needed -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<!-- ZXing WASM for 1D barcodes (EAN, UPC, Code128 etc) -->
+<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
 <style>
 :root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--border2:#3a3a3a;--text:#f0ede8;--text2:#888;--text3:#555;--accent:#e8d5a3;--accent2:#c4a96b;--green:#4ade80;--red:#f87171;--radius:12px;--radius-sm:8px;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -21,7 +25,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 40px;}
 .page{display:none;}.page.active{display:block;}
-.scanner-wrap{background:#000;border-radius:var(--radius);overflow:hidden;position:relative;width:100%;aspect-ratio:4/3;margin-bottom:16px;}
+
+.scanner-wrap{background:#000;border-radius:var(--radius);overflow:hidden;position:relative;width:100%;aspect-ratio:4/3;margin-bottom:12px;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #canvas{display:none;}
 .scan-ui{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
@@ -33,19 +38,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .scan-box span::after{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 3px 0;}
 .scan-line{position:absolute;left:4px;right:4px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:sweep 2s ease-in-out infinite;}
 @keyframes sweep{0%,100%{top:4px;opacity:0.3}50%{top:calc(100% - 4px);opacity:1}}
-.idle-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.idle-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
 .idle-icon{font-size:36px;opacity:0.5;}
-.idle-text{font-size:13px;color:rgba(255,255,255,0.4);}
+.idle-text{font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:0 20px;}
+
+.snap-btn{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0f0f0f;border:none;border-radius:100px;padding:10px 24px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:none;z-index:10;}
+.snap-btn:active{opacity:0.8;}
+
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;-webkit-appearance:none;width:100%;margin-bottom:10px;}
 .btn:active{opacity:0.7;transform:scale(0.98);}
 .btn-accent{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;}
 .btn-sm{padding:10px 16px;font-size:13px;margin-bottom:0;width:auto;flex:1;}
 .btn-row{display:flex;gap:8px;margin-bottom:10px;}
+
 .status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;font-size:12px;font-weight:500;background:var(--surface2);color:var(--text2);margin-bottom:14px;}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
 .dot.scanning{background:var(--green);animation:blink 1s infinite;}
 .dot.detected{background:var(--accent);}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.hint{font-size:12px;color:var(--text3);text-align:center;margin:-4px 0 14px;line-height:1.5;}
+
 .input-row{display:flex;gap:8px;margin-bottom:16px;}
 .input{flex:1;padding:13px 14px;border-radius:var(--radius-sm);font-size:15px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;-webkit-appearance:none;}
 .input:focus{outline:none;border-color:var(--accent2);}
@@ -53,6 +66,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .divider{display:flex;align-items:center;gap:10px;margin:6px 0 16px;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
 .divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
 .card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .card-title{font-size:13px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.06em;}
@@ -64,11 +78,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .field-input:focus{outline:none;border-color:var(--accent2);}
 select.field-input{appearance:none;-webkit-appearance:none;}
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
 .loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
 .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:var(--text2);}
 .loading-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
 .empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
 .history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;}
@@ -78,11 +94,11 @@ select.field-input{appearance:none;-webkit-appearance:none;}
 .history-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .history-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
 .history-arrow{color:var(--text3);font-size:18px;}
+
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
 .not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
-.warn-banner{background:rgba(232,213,163,0.1);border:1px solid rgba(232,213,163,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--accent);display:none;}
 </style>
 </head>
 <body>
@@ -98,6 +114,7 @@ select.field-input{appearance:none;-webkit-appearance:none;}
   </div>
   <div class="content">
 
+    <!-- SCAN TAB -->
     <div class="page active" id="tab-scan">
       <div class="scanner-wrap">
         <video id="video" playsinline autoplay muted></video>
@@ -105,12 +122,13 @@ select.field-input{appearance:none;-webkit-appearance:none;}
         <div class="scan-ui"><div class="scan-box"><span></span><div class="scan-line"></div></div></div>
         <div class="idle-overlay" id="idleOverlay">
           <div class="idle-icon">▤</div>
-          <div class="idle-text">Tap below to start</div>
+          <div class="idle-text">Tap below to start camera</div>
         </div>
+        <button class="snap-btn" id="snapBtn" onclick="snapAndDecode()">📷 Scan Barcode</button>
       </div>
       <div class="status-pill"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
-      <button class="btn btn-accent" id="scanBtn" onclick="toggleScanner()">Start Camera Scanner</button>
-      <div class="warn-banner" id="warnBanner">⚠ Barcode scanning requires iOS 17 or later. Use manual entry below.</div>
+      <button class="btn btn-accent" id="scanBtn" onclick="toggleScanner()">Start Camera</button>
+      <p class="hint" id="scanHint" style="display:none">Point camera at barcode, then tap "Scan Barcode"</p>
       <div class="divider"><span>or enter manually</span></div>
       <div class="input-row">
         <input class="input" id="manualInput" type="text" inputmode="numeric" placeholder="Barcode / UPC / EAN…"/>
@@ -118,6 +136,7 @@ select.field-input{appearance:none;-webkit-appearance:none;}
       </div>
     </div>
 
+    <!-- LISTING TAB -->
     <div class="page" id="tab-listing">
       <div id="listingEmpty" class="empty-state"><div class="empty-icon">🏷️</div><p>Scan an item to generate<br>your eBay listing</p></div>
       <div id="listingLoading" class="loading-card" style="display:none"><div class="spinner"></div><div class="loading-text">Looking up product…</div><div class="loading-sub">Searching product databases</div></div>
@@ -159,6 +178,7 @@ select.field-input{appearance:none;-webkit-appearance:none;}
       </div>
     </div>
 
+    <!-- HISTORY TAB -->
     <div class="page" id="tab-history">
       <div id="historyEmpty" class="empty-state"><div class="empty-icon">📋</div><p>Your scanned items<br>will appear here</p></div>
       <div id="historyList"></div>
@@ -169,8 +189,18 @@ select.field-input{appearance:none;-webkit-appearance:none;}
 <div class="toast" id="toast"></div>
 
 <script>
-let scanning=false, scanInterval=null, stream=null, currentBarcode='', lastCode='', debounceTimer=null;
+let scanning=false, stream=null, currentBarcode='', scanLoop=null;
 let history=JSON.parse(localStorage.getItem('ebay_history')||'[]');
+let zbarReady=false, jsqrReady=false;
+
+// Check which libraries loaded
+window.addEventListener('load',()=>{
+  jsqrReady = typeof jsQR !== 'undefined';
+  // zbar-wasm loads async
+  if(typeof ZBar !== 'undefined'){
+    ZBar.getZBar().then(()=>{ zbarReady=true; }).catch(()=>{});
+  }
+});
 
 function switchTab(tab){
   ['scan','listing','history'].forEach((n,i)=>{
@@ -180,61 +210,116 @@ function switchTab(tab){
   if(tab==='history') renderHistory();
 }
 
+// ── Scanner ────────────────────────────────────────────────────────────────
 async function toggleScanner(){
   if(scanning){stopScanner();return;}
-  if(!('BarcodeDetector' in window)){
-    document.getElementById('warnBanner').style.display='block';
-    showToast('Use iOS 17+ for scanning, or enter manually');
-    return;
-  }
   document.getElementById('scanBtn').textContent='Starting…';
   try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+    });
     const video=document.getElementById('video');
     video.srcObject=stream;
     await video.play();
     document.getElementById('idleOverlay').style.display='none';
+    document.getElementById('snapBtn').style.display='block';
+    document.getElementById('scanHint').style.display='block';
     scanning=true;
-    document.getElementById('scanBtn').textContent='Stop Scanner';
-    setStatus('Scanning… hold steady','scanning');
-    setTimeout(startDetecting,800);
+    document.getElementById('scanBtn').textContent='Stop Camera';
+    setStatus('Camera on — tap Scan Barcode','scanning');
+
+    // Try continuous auto-detect if BarcodeDetector available
+    if('BarcodeDetector' in window){
+      startAutoDetect(video);
+    }
   }catch(e){
-    setStatus('Camera unavailable','');
-    document.getElementById('scanBtn').textContent='Start Camera Scanner';
-    showToast('Camera error: '+e.message);
+    setStatus('Camera error','');
+    document.getElementById('scanBtn').textContent='Start Camera';
+    showToast('Camera blocked — check Safari settings');
   }
 }
 
-async function startDetecting(){
+// Continuous detection via BarcodeDetector (if available)
+function startAutoDetect(video){
   let detector;
-  try{ detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code']}); }
-  catch(e){ try{detector=new BarcodeDetector();}catch(e2){showToast('Scanner init failed');return;} }
-  const video=document.getElementById('video'), canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
-  scanInterval=setInterval(async()=>{
+  try{ detector=new BarcodeDetector(); }catch(e){ return; }
+  setStatus('Auto-scanning…','scanning');
+  let lastCode='';
+  scanLoop=setInterval(async()=>{
     if(!scanning||video.readyState<2) return;
-    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-    ctx.drawImage(video,0,0);
     try{
-      const results=await detector.detect(canvas);
+      const results=await detector.detect(video);
       if(results.length>0){
         const code=results[0].rawValue;
         if(code&&code!==lastCode){
           lastCode=code;
-          clearTimeout(debounceTimer);
-          debounceTimer=setTimeout(()=>{stopScanner();handleBarcode(code);},300);
+          setTimeout(()=>{stopScanner();handleBarcode(code);},200);
         }
       }
     }catch(e){}
-  },200);
+  },300);
 }
 
 function stopScanner(){
-  scanning=false; clearInterval(scanInterval); scanInterval=null; lastCode='';
+  scanning=false;
+  clearInterval(scanLoop); scanLoop=null;
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
   document.getElementById('video').srcObject=null;
   document.getElementById('idleOverlay').style.display='flex';
-  document.getElementById('scanBtn').textContent='Start Camera Scanner';
+  document.getElementById('snapBtn').style.display='none';
+  document.getElementById('scanHint').style.display='none';
+  document.getElementById('scanBtn').textContent='Start Camera';
   setStatus('Ready','');
+}
+
+// Manual snap & decode
+async function snapAndDecode(){
+  const video=document.getElementById('video');
+  const canvas=document.getElementById('canvas');
+  if(!video.srcObject||video.readyState<2){ showToast('Camera not ready yet'); return; }
+
+  document.getElementById('snapBtn').textContent='Scanning…';
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(video,0,0);
+  const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+
+  let code=null;
+
+  // Try jsQR (QR codes)
+  if(jsqrReady){
+    const result=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:'dontInvert'});
+    if(result) code=result.data;
+  }
+
+  // Try BarcodeDetector on canvas (1D barcodes)
+  if(!code && 'BarcodeDetector' in window){
+    try{
+      const detector=new BarcodeDetector();
+      const results=await detector.detect(canvas);
+      if(results.length>0) code=results[0].rawValue;
+    }catch(e){}
+  }
+
+  // Try zbar-wasm if loaded
+  if(!code && zbarReady && typeof ZBar!=='undefined'){
+    try{
+      const zbar=await ZBar.getZBar();
+      const results=zbar.scanImage(imageData);
+      if(results.length>0) code=results[0].decode();
+    }catch(e){}
+  }
+
+  document.getElementById('snapBtn').textContent='📷 Scan Barcode';
+
+  if(code){
+    stopScanner();
+    handleBarcode(code);
+  } else {
+    showToast('No barcode found — hold steady and try again');
+    setStatus('Try again — hold phone steady','scanning');
+  }
 }
 
 function setStatus(text,type){
@@ -249,11 +334,12 @@ function manualLookup(){
 }
 document.getElementById('manualInput').addEventListener('keydown',e=>{if(e.key==='Enter')manualLookup();});
 
+// ── Barcode handler ─────────────────────────────────────────────────────────
 function handleBarcode(code){
   currentBarcode=code;
   document.getElementById('manualInput').value=code;
   setStatus('Found: '+code,'detected');
-  showToast('Barcode: '+code);
+  showToast('Got it: '+code);
   switchTab('listing');
   document.getElementById('listingEmpty').style.display='none';
   document.getElementById('listingLoading').style.display='block';
@@ -261,19 +347,23 @@ function handleBarcode(code){
   lookupProduct(code);
 }
 
+// ── Product lookup ──────────────────────────────────────────────────────────
 async function lookupProduct(barcode){
   let product=null;
+  // 1. Open Food Facts
   try{
     const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
     const d=await r.json();
     if(d.status===1&&d.product&&d.product.product_name){
       const p=d.product;
-      product={found:true,source:'Open Food Facts',name:p.product_name||'',brand:p.brands||'',category:p.categories?p.categories.split(',')[0].trim():'Food & Grocery',
+      product={found:true,source:'Open Food Facts',name:p.product_name||'',brand:p.brands||'',
+        category:p.categories?p.categories.split(',')[0].trim():'Food & Grocery',
         description:[p.product_name,p.brands?`by ${p.brands}`:'',p.quantity?`— ${p.quantity}`:''].filter(Boolean).join(' '),
         specs:[p.quantity?`Size: ${p.quantity}`:'',p.brands?`Brand: ${p.brands}`:''].filter(Boolean).join('\n'),
         tags:buildTags(p.product_name,p.brands,p.categories)};
     }
   }catch(e){}
+  // 2. Open Beauty Facts
   if(!product){
     try{
       const r=await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
@@ -281,10 +371,12 @@ async function lookupProduct(barcode){
       if(d.status===1&&d.product&&d.product.product_name){
         const p=d.product;
         product={found:true,source:'Open Beauty Facts',name:p.product_name||'',brand:p.brands||'',category:'Health & Beauty',
-          description:`${p.product_name} by ${p.brands||'unknown brand'}.`,specs:p.quantity?`Size: ${p.quantity}`:'',tags:buildTags(p.product_name,p.brands,'beauty')};
+          description:`${p.product_name} by ${p.brands||'unknown brand'}.`,
+          specs:p.quantity?`Size: ${p.quantity}`:'',tags:buildTags(p.product_name,p.brands,'beauty')};
       }
     }catch(e){}
   }
+  // 3. UPC Item DB
   if(!product){
     try{
       const r=await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
@@ -328,6 +420,7 @@ function populateListing(barcode,product){
   localStorage.setItem('ebay_history',JSON.stringify(history));
 }
 
+// ── Actions ─────────────────────────────────────────────────────────────────
 function copyListing(){
   const text=`TITLE: ${document.getElementById('fTitle').value}
 CATEGORY: ${document.getElementById('fCategory').value}
@@ -354,24 +447,30 @@ KEYWORDS: ${document.getElementById('fTags').value}`;
 }
 function fallbackCopy(text){
   const el=document.createElement('textarea');
-  el.value=text;el.style.cssText='position:fixed;opacity:0;';
+  el.value=text;el.style.cssText='position:fixed;opacity:0;top:0;left:0;';
   document.body.appendChild(el);el.focus();el.select();el.setSelectionRange(0,99999);
-  try{document.execCommand('copy');showToast('Copied!');}catch(e){showToast('Long-press to copy');}
+  try{document.execCommand('copy');showToast('Copied!');}catch(e){showToast('Copy failed — try long-press');}
   document.body.removeChild(el);
 }
 function openEbay(){window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${encodeURIComponent(document.getElementById('fTitle').value)}`,'_blank');}
 function scanAnother(){currentBarcode='';document.getElementById('manualInput').value='';switchTab('scan');}
 
+// ── History ──────────────────────────────────────────────────────────────────
 function renderHistory(){
   const list=document.getElementById('historyList'),empty=document.getElementById('historyEmpty');
   if(!history.length){empty.style.display='block';list.innerHTML='';return;}
   empty.style.display='none';
   list.innerHTML=history.map((item,i)=>`<div class="history-item" onclick="restoreItem(${i})"><div class="history-thumb">📦</div><div class="history-info"><div class="history-name">${item.name||'Unknown'}</div><div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-function restoreItem(i){const item=history[i];currentBarcode=item.barcode;switchTab('listing');document.getElementById('listingEmpty').style.display='none';document.getElementById('listingLoading').style.display='block';document.getElementById('listingForm').style.display='none';setTimeout(()=>populateListing(item.barcode,item.product),200);}
+function restoreItem(i){
+  const item=history[i];currentBarcode=item.barcode;switchTab('listing');
+  document.getElementById('listingEmpty').style.display='none';
+  document.getElementById('listingLoading').style.display='block';
+  document.getElementById('listingForm').style.display='none';
+  setTimeout(()=>populateListing(item.barcode,item.product),200);
+}
 function timeAgo(ts){const d=(Date.now()-ts)/1000;if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
-if(!('BarcodeDetector' in window))setTimeout(()=>{document.getElementById('warnBanner').style.display='block';},300);
 </script>
 </body>
 </html>
