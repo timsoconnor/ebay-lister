@@ -348,7 +348,8 @@ If not found set found to false and fill in what you can. Type should be "game",
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': getKey(),
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
