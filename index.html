@@ -29,7 +29,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 60px;}
 .page{display:none;}.page.active{display:block;}
 
-/* Tip card */
 .tip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;}
 .tip-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .tip-icon{font-size:22px;}
@@ -38,7 +37,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .tip-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.5;}
 .tip-num{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0;margin-top:1px;}
 
-/* Barcode entry */
 .barcode-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
 .entry-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:block;}
 .barcode-field-wrap{position:relative;margin-bottom:12px;}
@@ -47,39 +45,34 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .barcode-field::placeholder{color:var(--text3);font-size:16px;letter-spacing:0;}
 .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--border2);border:none;color:var(--text2);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;}
 .clear-btn.visible{display:flex;}
-
 .entry-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .entry-btn{padding:14px 12px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
 .entry-btn:active{transform:scale(0.97);opacity:0.8;}
 .entry-btn.primary{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;grid-column:span 2;}
 
-/* Recents */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;}
 .section-action{font-size:11px;color:var(--text3);cursor:pointer;}
 .recents-list{display:flex;flex-direction:column;gap:8px;}
-.recent-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.15s;}
+.recent-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
 .recent-chip:active{border-color:var(--accent2);}
-.recent-barcode{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--text);flex:1;}
-.recent-name{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
-.recent-platform{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--accent);font-weight:500;white-space:nowrap;flex-shrink:0;}
+.recent-barcode{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text);flex:1;}
+.recent-name{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
 .recent-arrow{color:var(--text3);font-size:16px;flex-shrink:0;}
 
-/* Listing */
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
 .empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
+
 .loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
 .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:var(--text2);}
-.loading-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+.loading-sub{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
 .card-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .card-title{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.07em;}
-.card-header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .barcode-tag{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:3px 8px;border-radius:6px;color:var(--text2);}
-.platform-tag{font-size:11px;background:rgba(96,165,250,0.15);color:var(--blue);padding:3px 8px;border-radius:6px;font-weight:500;}
 .card-body{padding:14px 16px;}
 .field{margin-bottom:13px;}.field:last-child{margin-bottom:0;}
 .label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;display:block;}
@@ -88,9 +81,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 select.field-input{appearance:none;-webkit-appearance:none;}
 .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px;}
-.game-banner{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--blue);display:flex;align-items:center;gap:8px;}
-.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);display:flex;align-items:center;gap:8px;}
+.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
+.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
 
 .action-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;width:100%;margin-bottom:10px;}
 .action-btn:active{opacity:0.7;transform:scale(0.98);}
@@ -98,14 +90,12 @@ select.field-input{appearance:none;-webkit-appearance:none;}
 .action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .action-row .action-btn{margin-bottom:0;}
 
-/* History */
 .history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;}
 .history-item:active{border-color:var(--accent2);}
 .history-thumb{width:42px;height:42px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .history-info{flex:1;min-width:0;}
 .history-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .history-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
-.history-platform{font-size:11px;color:var(--blue);margin-top:2px;}
 .history-arrow{color:var(--text3);font-size:18px;}
 
 .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 22px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.25s;z-index:999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
@@ -146,7 +136,7 @@ select.field-input{appearance:none;-webkit-appearance:none;}
         </div>
         <div class="entry-actions">
           <button class="entry-btn" onclick="pasteBarcode()">📋 Paste</button>
-          <button class="entry-btn" onclick="showToast('Use Camera app → long press yellow banner → Copy')">📷 Tip</button>
+          <button class="entry-btn" onclick="showToast('Camera app → point at barcode → long press yellow banner → Copy')">📷 Tip</button>
           <button class="entry-btn primary" onclick="doLookup()">Look up barcode →</button>
         </div>
       </div>
@@ -158,6 +148,10 @@ select.field-input{appearance:none;-webkit-appearance:none;}
         </div>
         <div class="recents-list" id="recentsList"></div>
       </div>
+
+      <div style="margin-top:24px;text-align:center;">
+        <span id="keyStatus" style="font-size:12px;color:var(--text3);cursor:pointer;" onclick="changeKey()"></span>
+      </div>
     </div>
 
     <!-- LISTING TAB -->
@@ -166,17 +160,14 @@ select.field-input{appearance:none;-webkit-appearance:none;}
       <div id="listingLoading" class="loading-card" style="display:none">
         <div class="spinner"></div>
         <div class="loading-text" id="loadingText">Looking up product…</div>
-        <div class="loading-sub" id="loadingSub">Checking game database first</div>
+        <div class="loading-sub" id="loadingSub">Claude is searching the web for this item</div>
       </div>
       <div id="listingForm" style="display:none">
         <div id="foundBanner"></div>
         <div class="card">
           <div class="card-header">
             <span class="card-title">Listing Details</span>
-            <div class="card-header-right">
-              <span class="platform-tag" id="platformTag" style="display:none"></span>
-              <span class="barcode-tag" id="barcodeTag">—</span>
-            </div>
+            <span class="barcode-tag" id="barcodeTag">—</span>
           </div>
           <div class="card-body">
             <div class="field"><label class="label">Title (max 80 chars)</label><input class="field-input" id="fTitle" type="text" maxlength="80"/></div>
@@ -225,10 +216,10 @@ select.field-input{appearance:none;-webkit-appearance:none;}
 <div class="toast" id="toast"></div>
 
 <script>
-const SCANDEX_KEY = '409f6eab16c5eb36ab127ee9b8c4dcb2';
+function getKey() { return localStorage.getItem('claude_api_key') || ''; }
+function setKey(k) { localStorage.setItem('claude_api_key', k.trim()); }
 
 let currentBarcode = '';
-let currentProduct = null;
 let history = JSON.parse(localStorage.getItem('ebay_history') || '[]');
 let recents = JSON.parse(localStorage.getItem('ebay_recents') || '[]');
 
@@ -236,10 +227,27 @@ let recents = JSON.parse(localStorage.getItem('ebay_recents') || '[]');
 function switchTab(tab) {
   ['scan','listing','history'].forEach((n,i) => {
     document.querySelectorAll('.tab')[i].classList.toggle('active', n === tab);
-    document.getElementById('tab-' + n).classList.toggle('active', n === tab);
+    document.getElementById('tab-'+n).classList.toggle('active', n === tab);
   });
   if (tab === 'history') renderHistory();
-  if (tab === 'scan') renderRecents();
+  if (tab === 'scan') function changeKey() {
+  const key = prompt('Paste your Anthropic API key:');
+  if (key && key.trim()) {
+    setKey(key);
+    updateKeyStatus();
+    showToast('API key saved!');
+  }
+}
+function updateKeyStatus() {
+  const el = document.getElementById('keyStatus');
+  if (!el) return;
+  const k = getKey();
+  el.textContent = k ? '🔑 API key set — tap to change' : '⚠ No API key set — tap to add';
+  el.style.color = k ? 'var(--text3)' : 'var(--red)';
+}
+
+renderRecents();
+updateKeyStatus();
 }
 
 // ── Input ─────────────────────────────────────────────────────────────────────
@@ -247,18 +255,15 @@ function onBarcodeInput() {
   const val = document.getElementById('barcodeField').value;
   document.getElementById('clearBtn').classList.toggle('visible', val.length > 0);
 }
-
 function clearField() {
   document.getElementById('barcodeField').value = '';
   document.getElementById('clearBtn').classList.remove('visible');
   document.getElementById('barcodeField').focus();
 }
-
 async function pasteBarcode() {
   try {
     const text = await navigator.clipboard.readText();
-    const cleaned = text.replace(/\s/g, '').trim();
-    // Accept numeric or alphanumeric barcodes
+    const cleaned = text.replace(/\s/g,'').trim();
     if (cleaned.length >= 6) {
       document.getElementById('barcodeField').value = cleaned;
       onBarcodeInput();
@@ -268,18 +273,15 @@ async function pasteBarcode() {
       showToast('Nothing useful on clipboard');
     }
   } catch(e) {
-    const field = document.getElementById('barcodeField');
-    field.focus(); field.select();
+    document.getElementById('barcodeField').focus();
     showToast('Tap and hold the field → Paste');
   }
 }
-
 function doLookup() {
   const val = document.getElementById('barcodeField').value.trim();
-  if (!val) { showToast('Enter a barcode first'); document.getElementById('barcodeField').focus(); return; }
+  if (!val) { showToast('Enter a barcode first'); return; }
   handleBarcode(val);
 }
-
 document.getElementById('barcodeField').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLookup();
 });
@@ -290,169 +292,99 @@ function handleBarcode(code) {
   recents = [code, ...recents.filter(r => r !== code)].slice(0, 8);
   localStorage.setItem('ebay_recents', JSON.stringify(recents));
   switchTab('listing');
-  setLoading('Checking game database…', 'Powered by ScanDex + IGDB');
-  lookupProduct(code);
-}
-
-function setLoading(text, sub) {
   document.getElementById('listingEmpty').style.display = 'none';
   document.getElementById('listingLoading').style.display = 'block';
   document.getElementById('listingForm').style.display = 'none';
-  document.getElementById('loadingText').textContent = text;
-  document.getElementById('loadingSub').textContent = sub;
+  lookupWithClaude(code);
 }
 
-// ── Lookup pipeline ───────────────────────────────────────────────────────────
-async function lookupProduct(barcode) {
-  let product = null;
+// ── Claude lookup ─────────────────────────────────────────────────────────────
+async function lookupWithClaude(barcode) {
+  const setStatus = (text, sub) => {
+    document.getElementById('loadingText').textContent = text;
+    document.getElementById('loadingSub').textContent = sub;
+  };
 
-  // 1. ScanDex — video game database
-  try {
-    const r = await fetch(`https://scandex.gamery.app/api/v2/lookup?value=${barcode}`, {
-      headers: { 'Authorization': SCANDEX_KEY }
-    });
-    if (r.ok) {
-      const d = await r.json();
-      if (d.igdb_metadata && d.igdb_metadata.name) {
-        const game = d.igdb_metadata;
-        const platform = game.platform ? game.platform.name : '';
-        const name = game.name;
-        product = {
-          found: true,
-          type: 'game',
-          source: 'ScanDex / IGDB',
-          name,
-          platform,
-          brand: platform,
-          category: buildGameCategory(platform),
-          title: buildGameTitle(name, platform),
-          description: buildGameDesc(name, platform),
-          specs: buildGameSpecs(name, platform, barcode),
-          tags: buildGameTags(name, platform),
-          shipping: '$5.00'
-        };
-      }
+  // Check for API key
+  if (!getKey()) {
+    const key = prompt('Paste your Anthropic API key below.\n\nIt will be saved on this device only and never uploaded to GitHub.');
+    if (!key || !key.trim()) {
+      document.getElementById('listingLoading').style.display = 'none';
+      document.getElementById('listingForm').style.display = 'block';
+      document.getElementById('barcodeTag').textContent = barcode;
+      document.getElementById('foundBanner').innerHTML = '<div class="not-found-banner">⚠ No API key — tap \'Enter another barcode\' and try again after setting your key.</div>';
+      document.getElementById('fSpecs').value = 'UPC: ' + barcode;
+      return;
     }
-  } catch(e) {}
-
-  // 2. UPC Item DB — good for action figures & general retail
-  if (!product) {
-    setLoading('Checking product database…', 'Searching UPC Item DB');
-    try {
-      const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
-      const d = await r.json();
-      if (d.code === 'OK' && d.items && d.items.length > 0) {
-        const item = d.items[0];
-        const isGame = /playstation|xbox|nintendo|ps[1-5]|switch|wii|gameboy/i.test((item.category || '') + (item.title || ''));
-        const isFigure = /figure|figurine|action|toy|doll|statue|collectible/i.test((item.category || '') + (item.title || ''));
-        product = {
-          found: true,
-          type: isGame ? 'game' : isFigure ? 'figure' : 'general',
-          source: 'UPC Item DB',
-          name: item.title || '',
-          brand: item.brand || '',
-          platform: '',
-          category: item.category || (isGame ? 'Video Games' : isFigure ? 'Toys & Hobbies > Action Figures' : 'Collectibles'),
-          title: (item.title || '').slice(0, 80),
-          description: item.description || `${item.title} by ${item.brand || 'unknown brand'}.`,
-          specs: [
-            item.brand ? `Brand: ${item.brand}` : '',
-            item.model ? `Model: ${item.model}` : '',
-            item.color ? `Color: ${item.color}` : '',
-            item.size ? `Size: ${item.size}` : '',
-            `UPC: ${barcode}`
-          ].filter(Boolean).join('\n'),
-          tags: buildTags(item.title, item.brand, item.category),
-          price: item.lowest_recorded_price ? `$${item.lowest_recorded_price.toFixed(2)}` : '',
-          shipping: isGame ? '$5.00' : '$9.99'
-        };
-      }
-    } catch(e) {}
+    setKey(key);
   }
 
-  // 3. Open Food Facts fallback
-  if (!product) {
-    try {
-      const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      const d = await r.json();
-      if (d.status === 1 && d.product && d.product.product_name) {
-        const p = d.product;
-        product = {
-          found: true, type: 'general', source: 'Open Food Facts',
-          name: p.product_name || '', brand: p.brands || '', platform: '',
-          category: 'Food & Grocery',
-          title: [p.brands, p.product_name].filter(Boolean).join(' ').slice(0, 80),
-          description: [p.product_name, p.brands ? `by ${p.brands}` : '', p.quantity ? `— ${p.quantity}` : ''].filter(Boolean).join(' '),
-          specs: [p.quantity ? `Size: ${p.quantity}` : '', p.brands ? `Brand: ${p.brands}` : '', `UPC: ${barcode}`].filter(Boolean).join('\n'),
-          tags: buildTags(p.product_name, p.brands, 'food'),
-          shipping: '$9.99'
-        };
-      }
-    } catch(e) {}
+  setStatus('Searching for product…', 'Barcode: ' + barcode);
+
+  const prompt = `You are an eBay listing assistant. Look up the product with barcode/UPC "${barcode}" and return ONLY a valid JSON object, no markdown, no explanation.
+
+Use web search to identify the product. This is likely a video game or action figure.
+
+Return this exact JSON structure:
+{
+  "found": true,
+  "type": "game",
+  "title": "eBay listing title max 80 chars",
+  "brand": "platform name or brand e.g. PlayStation 4",
+  "category": "full eBay category path e.g. Video Games > Sony PlayStation 4",
+  "condition": "Very Good",
+  "description": "3-4 sentence eBay product description",
+  "specs": "key specs one per line e.g. Platform: PS4\\nTitle: Among the Sleep\\nUPC: 852103006362",
+  "price": "suggested resale price e.g. $12.99",
+  "shipping": "estimated shipping cost e.g. $5.00",
+  "tags": "comma separated search keywords"
+}
+
+If not found set found to false and fill in what you can. Type should be "game", "figure", or "general".`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': getKey(),
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`API error ${response.status}: ${err}`);
+    }
+
+    const data = await response.json();
+
+    // Extract text from response (may include tool use blocks)
+    const textBlocks = (data.content || []).filter(b => b.type === 'text');
+    const rawText = textBlocks.map(b => b.text).join('');
+
+    // Parse JSON from response
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    const product = JSON.parse(jsonMatch[0]);
+
+    populateListing(barcode, product);
+
+  } catch(e) {
+    // Show error but still let user fill in manually
+    document.getElementById('listingLoading').style.display = 'none';
+    document.getElementById('listingForm').style.display = 'block';
+    document.getElementById('barcodeTag').textContent = barcode;
+    document.getElementById('foundBanner').innerHTML =
+      `<div class="not-found-banner">⚠ Lookup failed: ${e.message.slice(0,80)}. Fill in manually.</div>`;
+    document.getElementById('fSpecs').value = `UPC: ${barcode}`;
   }
-
-  if (!product) {
-    product = {
-      found: false, type: 'unknown', source: null,
-      name: '', brand: '', platform: '', category: '', title: '',
-      description: '', specs: `UPC: ${barcode}`, tags: barcode, shipping: '$9.99'
-    };
-  }
-
-  currentProduct = product;
-  populateListing(barcode, product);
-}
-
-// ── Game helpers ──────────────────────────────────────────────────────────────
-function buildGameCategory(platform) {
-  if (!platform) return 'Video Games';
-  const p = platform.toLowerCase();
-  if (p.includes('playstation 5') || p.includes('ps5')) return 'Video Games > Sony PlayStation 5';
-  if (p.includes('playstation 4') || p.includes('ps4')) return 'Video Games > Sony PlayStation 4';
-  if (p.includes('playstation 3') || p.includes('ps3')) return 'Video Games > Sony PlayStation 3';
-  if (p.includes('playstation 2') || p.includes('ps2')) return 'Video Games > Sony PlayStation 2';
-  if (p.includes('playstation') || p.includes('ps1') || p.includes('psx')) return 'Video Games > Sony PlayStation';
-  if (p.includes('xbox series')) return 'Video Games > Microsoft Xbox Series X|S';
-  if (p.includes('xbox one')) return 'Video Games > Microsoft Xbox One';
-  if (p.includes('xbox 360')) return 'Video Games > Microsoft Xbox 360';
-  if (p.includes('xbox')) return 'Video Games > Microsoft Xbox';
-  if (p.includes('switch')) return 'Video Games > Nintendo Switch';
-  if (p.includes('wii u')) return 'Video Games > Nintendo Wii U';
-  if (p.includes('wii')) return 'Video Games > Nintendo Wii';
-  if (p.includes('3ds')) return 'Video Games > Nintendo 3DS';
-  if (p.includes('ds')) return 'Video Games > Nintendo DS';
-  if (p.includes('pc')) return 'Video Games > PC';
-  return 'Video Games';
-}
-
-function buildGameTitle(name, platform) {
-  const title = platform ? `${name} ${platform}` : name;
-  return title.slice(0, 80);
-}
-
-function buildGameDesc(name, platform) {
-  const plat = platform ? ` for ${platform}` : '';
-  return `${name}${plat}. Pre-owned video game in good working condition. Disc and case included unless noted otherwise. Tested and working. Ships in protective packaging.`;
-}
-
-function buildGameSpecs(name, platform, barcode) {
-  return [
-    `Title: ${name}`,
-    platform ? `Platform: ${platform}` : '',
-    `UPC: ${barcode}`,
-    'Format: Physical Disc',
-    'Region: NTSC (North America)'
-  ].filter(Boolean).join('\n');
-}
-
-function buildGameTags(name, platform) {
-  const words = [name, platform, 'video game', 'pre-owned', 'used'].join(' ')
-    .toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-  return [...new Set(words)].slice(0, 8).join(', ');
-}
-
-function buildTags(a, b, c) {
-  return [...new Set([a,b,c].join(' ').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w => w.length > 2).slice(0, 8))].join(', ');
 }
 
 // ── Populate form ─────────────────────────────────────────────────────────────
@@ -461,41 +393,24 @@ function populateListing(barcode, product) {
   document.getElementById('listingForm').style.display = 'block';
   document.getElementById('barcodeTag').textContent = barcode;
 
-  // Platform tag
-  const platformTag = document.getElementById('platformTag');
-  if (product.platform) {
-    platformTag.textContent = product.platform;
-    platformTag.style.display = 'inline';
-  } else {
-    platformTag.style.display = 'none';
-  }
+  const icons = { game: '🎮', figure: '🦸', general: '📦' };
+  const icon = icons[product.type] || '📦';
 
-  // Banner
-  const banner = document.getElementById('foundBanner');
-  if (product.type === 'game' && product.found) {
-    banner.innerHTML = `<div class="game-banner">🎮 Game identified via ${product.source}</div>`;
-  } else if (product.found) {
-    banner.innerHTML = `<div class="found-banner">✓ Product found via ${product.source}</div>`;
-  } else {
-    banner.innerHTML = `<div class="not-found-banner">⚠ Product not found — fill in manually</div>`;
-  }
+  document.getElementById('foundBanner').innerHTML = product.found
+    ? `<div class="found-banner">${icon} Found — ${product.type === 'game' ? 'Video Game' : product.type === 'figure' ? 'Action Figure' : 'Product'} identified via web search</div>`
+    : `<div class="not-found-banner">⚠ Product not confirmed — review and edit before listing</div>`;
 
-  document.getElementById('fTitle').value = product.title || '';
-  document.getElementById('fBrand').value = product.platform || product.brand || '';
+  document.getElementById('fTitle').value = (product.title || '').slice(0, 80);
+  document.getElementById('fBrand').value = product.brand || '';
   document.getElementById('fCategory').value = product.category || '';
+  document.getElementById('fCondition').value = product.condition || 'Very Good';
   document.getElementById('fDesc').value = product.description || '';
-  document.getElementById('fSpecs').value = product.specs || '';
+  document.getElementById('fSpecs').value = product.specs || `UPC: ${barcode}`;
   document.getElementById('fPrice').value = product.price || '';
   document.getElementById('fShipping').value = product.shipping || '$9.99';
   document.getElementById('fTags').value = product.tags || '';
 
-  // Condition defaults
-  if (product.type === 'game') {
-    document.getElementById('fCondition').value = 'Very Good';
-  }
-
-  // Save history
-  const entry = { barcode, name: product.title || product.name || 'Unknown', platform: product.platform || '', time: Date.now(), product };
+  const entry = { barcode, name: product.title || 'Unknown', type: product.type || 'general', time: Date.now(), product };
   history = [entry, ...history.filter(h => h.barcode !== barcode)].slice(0, 30);
   localStorage.setItem('ebay_history', JSON.stringify(history));
 }
@@ -526,20 +441,16 @@ KEYWORDS: ${document.getElementById('fTags').value}`;
     navigator.clipboard.writeText(text).then(() => showToast('Listing copied!')).catch(() => fallbackCopy(text));
   } else { fallbackCopy(text); }
 }
-
 function fallbackCopy(text) {
   const el = document.createElement('textarea');
   el.value = text; el.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
-  document.body.appendChild(el); el.focus(); el.select(); el.setSelectionRange(0, 99999);
+  document.body.appendChild(el); el.focus(); el.select(); el.setSelectionRange(0,99999);
   try { document.execCommand('copy'); showToast('Listing copied!'); } catch(e) { showToast('Copy failed'); }
   document.body.removeChild(el);
 }
-
 function openEbay() {
-  const title = encodeURIComponent(document.getElementById('fTitle').value);
-  window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${title}`, '_blank');
+  window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${encodeURIComponent(document.getElementById('fTitle').value)}`, '_blank');
 }
-
 function scanAnother() {
   currentBarcode = '';
   document.getElementById('barcodeField').value = '';
@@ -557,22 +468,18 @@ function renderRecents() {
   list.innerHTML = recents.map(code => {
     const entry = history.find(h => h.barcode === code);
     const name = entry ? entry.name : '';
-    const platform = entry ? entry.platform : '';
     return `<div class="recent-chip" onclick="useRecent('${code}')">
       <div class="recent-barcode">${code}</div>
       ${name ? `<div class="recent-name">${name}</div>` : ''}
-      ${platform ? `<div class="recent-platform">${platform}</div>` : ''}
       <div class="recent-arrow">→</div>
     </div>`;
   }).join('');
 }
-
 function useRecent(code) {
   document.getElementById('barcodeField').value = code;
   onBarcodeInput();
   handleBarcode(code);
 }
-
 function clearRecents() {
   recents = [];
   localStorage.setItem('ebay_recents', JSON.stringify(recents));
@@ -585,38 +492,35 @@ function renderHistory() {
   const empty = document.getElementById('historyEmpty');
   if (!history.length) { empty.style.display = 'block'; list.innerHTML = ''; return; }
   empty.style.display = 'none';
-  const icons = { game: '🎮', figure: '🦸', general: '📦', unknown: '📦' };
+  const icons = { game: '🎮', figure: '🦸', general: '📦' };
   list.innerHTML = history.map((item, i) => `
     <div class="history-item" onclick="restoreItem(${i})">
-      <div class="history-thumb">${icons[item.product?.type] || '📦'}</div>
+      <div class="history-thumb">${icons[item.type] || '📦'}</div>
       <div class="history-info">
         <div class="history-name">${item.name || 'Unknown'}</div>
-        ${item.platform ? `<div class="history-platform">${item.platform}</div>` : ''}
         <div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div>
       </div>
       <div class="history-arrow">›</div>
     </div>`).join('');
 }
-
 function restoreItem(i) {
   const item = history[i];
   currentBarcode = item.barcode;
-  currentProduct = item.product;
   document.getElementById('barcodeField').value = item.barcode;
   onBarcodeInput();
   switchTab('listing');
-  setLoading('Loading…', '');
+  document.getElementById('listingEmpty').style.display = 'none';
+  document.getElementById('listingLoading').style.display = 'block';
+  document.getElementById('listingForm').style.display = 'none';
   setTimeout(() => populateListing(item.barcode, item.product), 150);
 }
-
 function timeAgo(ts) {
-  const d = (Date.now() - ts) / 1000;
+  const d = (Date.now()-ts)/1000;
   if (d < 60) return 'just now';
-  if (d < 3600) return Math.floor(d/60) + 'm ago';
-  if (d < 86400) return Math.floor(d/3600) + 'h ago';
-  return Math.floor(d/86400) + 'd ago';
+  if (d < 3600) return Math.floor(d/60)+'m ago';
+  if (d < 86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
 }
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
