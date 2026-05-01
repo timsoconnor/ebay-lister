@@ -342,9 +342,15 @@ Return this exact JSON structure:
 
 If not found set found to false and fill in what you can. Type should be "game", "figure", or "general".`;
 
+  // 30 second timeout
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30000);
+
   try {
+    setStatus('Asking Claude…', 'Using built-in knowledge + training data');
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': getKey(),
@@ -352,38 +358,34 @@ If not found set found to false and fill in what you can. Type should be "game",
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
+    clearTimeout(timer);
+
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`API error ${response.status}: ${err}`);
+      throw new Error(`API ${response.status}: ${err.slice(0,120)}`);
     }
 
     const data = await response.json();
-
-    // Extract text from response (may include tool use blocks)
-    const textBlocks = (data.content || []).filter(b => b.type === 'text');
-    const rawText = textBlocks.map(b => b.text).join('');
-
-    // Parse JSON from response
+    const rawText = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in response');
+    if (!jsonMatch) throw new Error('No JSON returned — raw: ' + rawText.slice(0,100));
     const product = JSON.parse(jsonMatch[0]);
-
     populateListing(barcode, product);
 
   } catch(e) {
-    // Show error but still let user fill in manually
+    clearTimeout(timer);
+    const msg = e.name === 'AbortError' ? 'Request timed out after 30s' : e.message;
     document.getElementById('listingLoading').style.display = 'none';
     document.getElementById('listingForm').style.display = 'block';
     document.getElementById('barcodeTag').textContent = barcode;
     document.getElementById('foundBanner').innerHTML =
-      `<div class="not-found-banner">⚠ Lookup failed: ${e.message.slice(0,80)}. Fill in manually.</div>`;
+      `<div class="not-found-banner">⚠ ${msg.slice(0,120)}</div>`;
     document.getElementById('fSpecs').value = `UPC: ${barcode}`;
   }
 }
