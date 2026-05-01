@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Debug</title>
+<style>
+body{font-family:monospace;background:#0f0f0f;color:#f0ede8;padding:20px;margin:0;}
+h2{font-size:15px;color:#e8d5a3;margin:0 0 16px;}
+input{width:100%;padding:12px;font-size:16px;font-family:monospace;background:#1a1a1a;border:1px solid #3a3a3a;color:#f0ede8;border-radius:8px;box-sizing:border-box;margin-bottom:10px;}
+button{width:100%;padding:13px;font-size:15px;background:#e8d5a3;color:#0f0f0f;border:none;border-radius:8px;font-weight:600;cursor:pointer;margin-bottom:20px;}
+.log{background:#1a1a1a;border:1px solid #2e2e2e;border-radius:8px;padding:14px;margin-bottom:10px;}
+.log-title{font-size:12px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;}
+.ok{color:#4ade80;}.err{color:#f87171;}.info{color:#60a5fa;}.warn{color:#e8d5a3;}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;margin:0;line-height:1.6;}
+</style>
+</head>
+<body>
+<h2>🔍 API Debug Tool</h2>
+<input id="barcode" type="text" inputmode="numeric" placeholder="Enter barcode e.g. 852103006362" value="852103006362"/>
+<button onclick="runTests()">Run All API Tests</button>
+<div id="output"></div>
+
+<script>
+const SCANDEX_KEY = '409f6eab16c5eb36ab127ee9b8c4dcb2';
+
+function log(title, status, content) {
+  const cls = status === 'OK' ? 'ok' : status === 'ERR' ? 'err' : status === 'WARN' ? 'warn' : 'info';
+  document.getElementById('output').innerHTML += `
+    <div class="log">
+      <div class="log-title">${title} — <span class="${cls}">${status}</span></div>
+      <pre>${content}</pre>
+    </div>`;
+}
+
+async function runTests() {
+  document.getElementById('output').innerHTML = '';
+  const barcode = document.getElementById('barcode').value.trim();
+  if (!barcode) { log('Error', 'ERR', 'Enter a barcode first'); return; }
+
+  log('Starting', 'INFO', `Testing barcode: ${barcode}\nTime: ${new Date().toISOString()}`);
+
+  // Test 1: ScanDex
+  log('ScanDex', 'INFO', 'Sending request...');
+  try {
+    const url = `https://scandex.gamery.app/api/v2/lookup?value=${barcode}`;
+    log('ScanDex URL', 'INFO', url);
+    const r = await fetch(url, {
+      headers: { 'Authorization': SCANDEX_KEY }
+    });
+    const text = await r.text();
+    let parsed;
+    try { parsed = JSON.stringify(JSON.parse(text), null, 2); } catch(e) { parsed = text; }
+    log(`ScanDex Response (HTTP ${r.status})`, r.ok ? 'OK' : 'WARN', parsed);
+  } catch(e) {
+    log('ScanDex', 'ERR', `Fetch failed: ${e.message}\n\nThis usually means a network/CORS error.`);
+  }
+
+  // Test 2: UPC Item DB
+  log('UPC Item DB', 'INFO', 'Sending request...');
+  try {
+    const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`;
+    const r = await fetch(url);
+    const text = await r.text();
+    let parsed;
+    try { parsed = JSON.stringify(JSON.parse(text), null, 2); } catch(e) { parsed = text; }
+    log(`UPC Item DB (HTTP ${r.status})`, r.ok ? 'OK' : 'WARN', parsed);
+  } catch(e) {
+    log('UPC Item DB', 'ERR', `Fetch failed: ${e.message}`);
+  }
+
+  // Test 3: Open Food Facts
+  log('Open Food Facts', 'INFO', 'Sending request...');
+  try {
+    const url = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
+    const r = await fetch(url);
+    const d = await r.json();
+    log(`Open Food Facts (HTTP ${r.status})`, r.ok ? 'OK' : 'WARN',
+      `status: ${d.status}\nproduct found: ${d.status === 1}\n${d.product?.product_name ? 'name: ' + d.product.product_name : 'no product name'}`);
+  } catch(e) {
+    log('Open Food Facts', 'ERR', `Fetch failed: ${e.message}`);
+  }
+
+  log('Done', 'OK', 'All tests complete. Share this output to diagnose issues.');
+}
+
+// Auto-run on load
+window.onload = () => runTests();
+</script>
+</body>
+</html>
