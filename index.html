@@ -6,360 +6,151 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>eBay Quick Lister</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a1a;
-    --surface2: #242424;
-    --border: #2e2e2e;
-    --border2: #3a3a3a;
-    --text: #f0ede8;
-    --text2: #888;
-    --text3: #555;
-    --accent: #e8d5a3;
-    --accent2: #c4a96b;
-    --green: #4ade80;
-    --red: #f87171;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
-
-  #app { min-height: 100vh; display: flex; flex-direction: column; }
-
-  /* Header */
-  .header {
-    padding: 56px 20px 20px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px;
-  }
-  .header-logo {
-    width: 40px; height: 40px; background: var(--accent);
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .header h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
-  .header p { font-size: 12px; color: var(--text2); margin-top: 2px; }
-
-  /* Tabs */
-  .tabs {
-    display: flex; background: var(--bg); border-bottom: 1px solid var(--border);
-    padding: 0 20px; gap: 0;
-  }
-  .tab {
-    flex: 1; padding: 12px 0; font-size: 13px; font-weight: 500;
-    color: var(--text3); border: none; background: none; cursor: pointer;
-    border-bottom: 2px solid transparent; transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  /* Content */
-  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 20px 40px; }
-
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* Scanner */
-  .scanner-wrap {
-    background: #000; border-radius: var(--radius); overflow: hidden;
-    position: relative; width: 100%; aspect-ratio: 4/3; margin-bottom: 16px;
-  }
-  #video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .scan-ui {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-  }
-  .scan-box {
-    width: 200px; height: 120px; position: relative;
-  }
-  .scan-box::before, .scan-box::after,
-  .scan-box span::before, .scan-box span::after {
-    content: ''; position: absolute; width: 22px; height: 22px;
-    border-color: var(--accent); border-style: solid;
-  }
-  .scan-box::before { top:0; left:0; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
-  .scan-box::after  { top:0; right:0; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
-  .scan-box span::before { bottom:0; left:0; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
-  .scan-box span::after  { bottom:0; right:0; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
-  .scan-line {
-    position: absolute; left: 4px; right: 4px; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    animation: sweep 2s ease-in-out infinite;
-  }
-  @keyframes sweep { 0%,100%{top:4px;opacity:0.3} 50%{top:calc(100% - 4px);opacity:1} }
-
-  .idle-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.7);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-  }
-  .idle-icon { font-size: 36px; opacity: 0.5; }
-  .idle-text { font-size: 13px; color: rgba(255,255,255,0.4); }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 13px 20px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 500;
-    cursor: pointer; border: 1px solid var(--border2); background: var(--surface);
-    color: var(--text); font-family: 'DM Sans', sans-serif; transition: all 0.15s;
-    -webkit-appearance: none; width: 100%; margin-bottom: 10px;
-  }
-  .btn:active { opacity: 0.7; transform: scale(0.98); }
-  .btn-accent { background: var(--accent); color: #0f0f0f; border-color: var(--accent); font-weight: 600; }
-  .btn-sm { padding: 10px 16px; font-size: 13px; margin-bottom: 0; width: auto; flex: 1; }
-  .btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
-
-  /* Status */
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;
-    background: var(--surface2); color: var(--text2); margin-bottom: 14px;
-  }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
-  .dot.scanning { background: var(--green); animation: blink 1s infinite; }
-  .dot.detected { background: var(--accent); }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* Manual input */
-  .input-row { display: flex; gap: 8px; margin-bottom: 16px; }
-  .input {
-    flex: 1; padding: 13px 14px; border-radius: var(--radius-sm); font-size: 15px;
-    border: 1px solid var(--border2); background: var(--surface); color: var(--text);
-    font-family: 'DM Mono', monospace; -webkit-appearance: none;
-  }
-  .input:focus { outline: none; border-color: var(--accent2); }
-  .input::placeholder { color: var(--text3); }
-
-  /* Divider */
-  .divider { display: flex; align-items: center; gap: 10px; margin: 6px 0 16px; }
-  .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
-  .divider span { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
-
-  /* Listing form */
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; margin-bottom: 16px;
-  }
-  .card-header {
-    padding: 14px 16px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.06em; }
-  .barcode-tag {
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    background: var(--surface2); padding: 4px 8px; border-radius: 6px; color: var(--text2);
-  }
-  .card-body { padding: 14px 16px; }
-
-  .field { margin-bottom: 14px; }
-  .field:last-child { margin-bottom: 0; }
-  .label {
-    font-size: 10px; font-weight: 600; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; display: block;
-  }
-  .field-input {
-    width: 100%; padding: 11px 13px; border-radius: var(--radius-sm); font-size: 14px;
-    border: 1px solid var(--border2); background: var(--surface2); color: var(--text);
-    font-family: 'DM Sans', sans-serif; -webkit-appearance: none; resize: vertical;
-  }
-  .field-input:focus { outline: none; border-color: var(--accent2); }
-  select.field-input { appearance: none; -webkit-appearance: none; }
-  .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  /* Loading */
-  .loading-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 32px 20px; text-align: center; margin-bottom: 16px;
-  }
-  .spinner {
-    width: 28px; height: 28px; border: 2px solid var(--border2);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.7s linear infinite; margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: var(--text2); }
-  .loading-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
-
-  /* History tab */
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 14px; }
-  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
-
-  .history-item {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 12px; cursor: pointer;
-    transition: border-color 0.15s;
-  }
-  .history-item:active { border-color: var(--accent2); }
-  .history-thumb {
-    width: 44px; height: 44px; border-radius: 8px; background: var(--surface2);
-    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-  }
-  .history-info { flex: 1; min-width: 0; }
-  .history-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .history-meta { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
-  .history-arrow { color: var(--text3); font-size: 18px; }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--text); color: var(--bg); padding: 12px 20px; border-radius: 100px;
-    font-size: 14px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 999;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* Product found banner */
-  .found-banner {
-    background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2);
-    border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px;
-    font-size: 13px; color: var(--green); display: flex; align-items: center; gap: 8px;
-  }
-  .not-found-banner {
-    background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2);
-    border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 14px;
-    font-size: 13px; color: var(--red); display: flex; align-items: center; gap: 8px;
-  }
+:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--border2:#3a3a3a;--text:#f0ede8;--text2:#888;--text3:#555;--accent:#e8d5a3;--accent2:#c4a96b;--green:#4ade80;--red:#f87171;--radius:12px;--radius-sm:8px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+#app{min-height:100vh;display:flex;flex-direction:column;}
+.header{padding:56px 20px 20px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.header-logo{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.header h1{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-0.01em;}
+.header p{font-size:12px;color:var(--text2);margin-top:2px;}
+.tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;}
+.tab{flex:1;padding:12px 0;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 40px;}
+.page{display:none;}.page.active{display:block;}
+.scanner-wrap{background:#000;border-radius:var(--radius);overflow:hidden;position:relative;width:100%;aspect-ratio:4/3;margin-bottom:16px;}
+#video{width:100%;height:100%;object-fit:cover;display:block;}
+#canvas{display:none;}
+.scan-ui{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.scan-box{width:200px;height:120px;position:relative;}
+.scan-box::before,.scan-box::after,.scan-box span::before,.scan-box span::after{content:'';position:absolute;width:22px;height:22px;border-color:var(--accent);border-style:solid;}
+.scan-box::before{top:0;left:0;border-width:2px 0 0 2px;border-radius:3px 0 0 0;}
+.scan-box::after{top:0;right:0;border-width:2px 2px 0 0;border-radius:0 3px 0 0;}
+.scan-box span::before{bottom:0;left:0;border-width:0 0 2px 2px;border-radius:0 0 0 3px;}
+.scan-box span::after{bottom:0;right:0;border-width:0 2px 2px 0;border-radius:0 0 3px 0;}
+.scan-line{position:absolute;left:4px;right:4px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:sweep 2s ease-in-out infinite;}
+@keyframes sweep{0%,100%{top:4px;opacity:0.3}50%{top:calc(100% - 4px);opacity:1}}
+.idle-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.idle-icon{font-size:36px;opacity:0.5;}
+.idle-text{font-size:13px;color:rgba(255,255,255,0.4);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;-webkit-appearance:none;width:100%;margin-bottom:10px;}
+.btn:active{opacity:0.7;transform:scale(0.98);}
+.btn-accent{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;}
+.btn-sm{padding:10px 16px;font-size:13px;margin-bottom:0;width:auto;flex:1;}
+.btn-row{display:flex;gap:8px;margin-bottom:10px;}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;font-size:12px;font-weight:500;background:var(--surface2);color:var(--text2);margin-bottom:14px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.dot.scanning{background:var(--green);animation:blink 1s infinite;}
+.dot.detected{background:var(--accent);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.input-row{display:flex;gap:8px;margin-bottom:16px;}
+.input{flex:1;padding:13px 14px;border-radius:var(--radius-sm);font-size:15px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;-webkit-appearance:none;}
+.input:focus{outline:none;border-color:var(--accent2);}
+.input::placeholder{color:var(--text3);}
+.divider{display:flex;align-items:center;gap:10px;margin:6px 0 16px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.06em;}
+.barcode-tag{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:4px 8px;border-radius:6px;color:var(--text2);}
+.card-body{padding:14px 16px;}
+.field{margin-bottom:14px;}.field:last-child{margin-bottom:0;}
+.label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;display:block;}
+.field-input{width:100%;padding:11px 13px;border-radius:var(--radius-sm);font-size:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none;resize:vertical;}
+.field-input:focus{outline:none;border-color:var(--accent2);}
+select.field-input{appearance:none;-webkit-appearance:none;}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--text2);}
+.loading-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.history-item:active{border-color:var(--accent2);}
+.history-thumb{width:44px;height:44px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.history-info{flex:1;min-width:0;}
+.history-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.history-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
+.history-arrow{color:var(--text3);font-size:18px;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
+.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
+.warn-banner{background:rgba(232,213,163,0.1);border:1px solid rgba(232,213,163,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--accent);display:none;}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="header">
     <div class="header-logo">📦</div>
-    <div>
-      <h1>eBay Quick Lister</h1>
-      <p>Scan · Look up · List</p>
-    </div>
+    <div><h1>eBay Quick Lister</h1><p>Scan · Look up · List</p></div>
   </div>
-
   <div class="tabs">
     <button class="tab active" onclick="switchTab('scan')">Scanner</button>
     <button class="tab" onclick="switchTab('listing')">Listing</button>
     <button class="tab" onclick="switchTab('history')">History</button>
   </div>
-
   <div class="content">
 
-    <!-- SCAN TAB -->
     <div class="page active" id="tab-scan">
-      <div class="scanner-wrap" id="scannerWrap">
+      <div class="scanner-wrap">
         <video id="video" playsinline autoplay muted></video>
-        <div class="scan-ui" id="scanUI">
-          <div class="scan-box"><span></span><div class="scan-line"></div></div>
-        </div>
+        <canvas id="canvas"></canvas>
+        <div class="scan-ui"><div class="scan-box"><span></span><div class="scan-line"></div></div></div>
         <div class="idle-overlay" id="idleOverlay">
           <div class="idle-icon">▤</div>
-          <div class="idle-text">Camera off</div>
+          <div class="idle-text">Tap below to start</div>
         </div>
       </div>
-
-      <div class="status-pill">
-        <div class="dot" id="statusDot"></div>
-        <span id="statusText">Ready</span>
-      </div>
-
+      <div class="status-pill"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
       <button class="btn btn-accent" id="scanBtn" onclick="toggleScanner()">Start Camera Scanner</button>
-
+      <div class="warn-banner" id="warnBanner">⚠ Barcode scanning requires iOS 17 or later. Use manual entry below.</div>
       <div class="divider"><span>or enter manually</span></div>
-
       <div class="input-row">
-        <input class="input" id="manualInput" type="text" inputmode="numeric" placeholder="Barcode / UPC / EAN…" />
+        <input class="input" id="manualInput" type="text" inputmode="numeric" placeholder="Barcode / UPC / EAN…"/>
         <button class="btn btn-sm" style="width:auto;flex-shrink:0" onclick="manualLookup()">Look up</button>
       </div>
     </div>
 
-    <!-- LISTING TAB -->
     <div class="page" id="tab-listing">
-      <div id="listingEmpty" class="empty-state">
-        <div class="empty-icon">🏷️</div>
-        <p>Scan an item to generate<br>your eBay listing</p>
-      </div>
-
-      <div id="listingLoading" class="loading-card" style="display:none">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Looking up product…</div>
-        <div class="loading-sub">Searching product databases</div>
-      </div>
-
+      <div id="listingEmpty" class="empty-state"><div class="empty-icon">🏷️</div><p>Scan an item to generate<br>your eBay listing</p></div>
+      <div id="listingLoading" class="loading-card" style="display:none"><div class="spinner"></div><div class="loading-text">Looking up product…</div><div class="loading-sub">Searching product databases</div></div>
       <div id="listingForm" style="display:none">
         <div id="foundBanner"></div>
-
         <div class="card">
-          <div class="card-header">
-            <span class="card-title">Listing Details</span>
-            <span class="barcode-tag" id="barcodeTag">—</span>
-          </div>
+          <div class="card-header"><span class="card-title">Listing Details</span><span class="barcode-tag" id="barcodeTag">—</span></div>
           <div class="card-body">
-            <div class="field">
-              <label class="label">Title (max 80 chars)</label>
-              <input class="field-input" id="fTitle" type="text" maxlength="80" />
+            <div class="field"><label class="label">Title (max 80 chars)</label><input class="field-input" id="fTitle" type="text" maxlength="80"/></div>
+            <div class="field"><label class="label">Category</label><input class="field-input" id="fCategory" type="text"/></div>
+            <div class="field"><label class="label">Brand</label><input class="field-input" id="fBrand" type="text"/></div>
+            <div class="field"><label class="label">Condition</label>
+              <select class="field-input" id="fCondition"><option>New</option><option>Open box</option><option selected>Used – Like New</option><option>Used – Good</option><option>Used – Fair</option><option>For parts or not working</option></select>
             </div>
-            <div class="field">
-              <label class="label">Category</label>
-              <input class="field-input" id="fCategory" type="text" />
-            </div>
-            <div class="field">
-              <label class="label">Brand</label>
-              <input class="field-input" id="fBrand" type="text" />
-            </div>
-            <div class="field">
-              <label class="label">Condition</label>
-              <select class="field-input" id="fCondition">
-                <option>New</option>
-                <option>Open box</option>
-                <option selected>Used – Like New</option>
-                <option>Used – Good</option>
-                <option>Used – Fair</option>
-                <option>For parts or not working</option>
-              </select>
-            </div>
-            <div class="field">
-              <label class="label">Description</label>
-              <textarea class="field-input" id="fDesc" rows="4"></textarea>
-            </div>
-            <div class="field">
-              <label class="label">Item Specifics / Specs</label>
-              <textarea class="field-input" id="fSpecs" rows="3"></textarea>
-            </div>
+            <div class="field"><label class="label">Description</label><textarea class="field-input" id="fDesc" rows="4"></textarea></div>
+            <div class="field"><label class="label">Item Specifics</label><textarea class="field-input" id="fSpecs" rows="3"></textarea></div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header"><span class="card-title">Pricing & Shipping</span></div>
           <div class="card-body">
             <div class="price-grid">
-              <div class="field">
-                <label class="label">Buy It Now</label>
-                <input class="field-input" id="fPrice" type="text" placeholder="$0.00" />
-              </div>
-              <div class="field">
-                <label class="label">Start Bid</label>
-                <input class="field-input" id="fBid" type="text" placeholder="Optional" />
-              </div>
-              <div class="field">
-                <label class="label">Shipping</label>
-                <input class="field-input" id="fShipping" type="text" placeholder="$0.00" />
-              </div>
-              <div class="field">
-                <label class="label">Quantity</label>
-                <input class="field-input" id="fQty" type="number" value="1" min="1" />
-              </div>
+              <div class="field"><label class="label">Buy It Now</label><input class="field-input" id="fPrice" type="text" placeholder="$0.00"/></div>
+              <div class="field"><label class="label">Start Bid</label><input class="field-input" id="fBid" type="text" placeholder="Optional"/></div>
+              <div class="field"><label class="label">Shipping</label><input class="field-input" id="fShipping" type="text" placeholder="$0.00"/></div>
+              <div class="field"><label class="label">Quantity</label><input class="field-input" id="fQty" type="number" value="1" min="1"/></div>
             </div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-header"><span class="card-title">Search Keywords</span></div>
-          <div class="card-body">
-            <div class="field">
-              <input class="field-input" id="fTags" type="text" placeholder="keyword1, keyword2…" />
-            </div>
-          </div>
+          <div class="card-body"><div class="field"><input class="field-input" id="fTags" type="text" placeholder="keyword1, keyword2…"/></div></div>
         </div>
-
         <div class="btn-row">
           <button class="btn btn-sm" onclick="copyListing()">Copy listing</button>
           <button class="btn btn-sm btn-accent" onclick="openEbay()">Open eBay ↗</button>
@@ -368,260 +159,177 @@
       </div>
     </div>
 
-    <!-- HISTORY TAB -->
     <div class="page" id="tab-history">
-      <div id="historyEmpty" class="empty-state">
-        <div class="empty-icon">📋</div>
-        <p>Your scanned items<br>will appear here</p>
-      </div>
+      <div id="historyEmpty" class="empty-state"><div class="empty-icon">📋</div><p>Your scanned items<br>will appear here</p></div>
       <div id="historyList"></div>
     </div>
 
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/zxing.min.js"></script>
 <script>
-let scanning = false;
-let codeReader = null;
-let history = JSON.parse(localStorage.getItem('ebay_history') || '[]');
-let currentBarcode = '';
+let scanning=false, scanInterval=null, stream=null, currentBarcode='', lastCode='', debounceTimer=null;
+let history=JSON.parse(localStorage.getItem('ebay_history')||'[]');
 
-// Tab switching
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['scan','listing','history'][i] === tab));
-  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', ['tab-scan','tab-listing','tab-history'][i] === 'tab-'+tab));
-  if (tab === 'history') renderHistory();
-}
-
-// Scanner
-async function toggleScanner() {
-  if (scanning) { stopScanner(); return; }
-  const btn = document.getElementById('scanBtn');
-  btn.textContent = 'Starting…';
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    const video = document.getElementById('video');
-    video.srcObject = stream;
-    await video.play();
-    document.getElementById('idleOverlay').style.display = 'none';
-    scanning = true;
-    btn.textContent = 'Stop Scanner';
-    setStatus('Scanning…', 'scanning');
-    startZxing(video);
-  } catch(e) {
-    setStatus('Camera unavailable — use manual entry', '');
-    btn.textContent = 'Start Camera Scanner';
-    showToast('Camera blocked. Try Settings → Safari → Camera → Allow');
-  }
-}
-
-function startZxing(video) {
-  codeReader = new ZXing.BrowserMultiFormatReader();
-  codeReader.decodeFromVideoElement(video, (result, err) => {
-    if (result && scanning) {
-      const code = result.getText();
-      stopScanner();
-      handleBarcode(code);
-    }
+function switchTab(tab){
+  ['scan','listing','history'].forEach((n,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',n===tab);
+    document.getElementById('tab-'+n).classList.toggle('active',n===tab);
   });
+  if(tab==='history') renderHistory();
 }
 
-function stopScanner() {
-  scanning = false;
-  const video = document.getElementById('video');
-  if (video.srcObject) {
-    video.srcObject.getTracks().forEach(t => t.stop());
-    video.srcObject = null;
+async function toggleScanner(){
+  if(scanning){stopScanner();return;}
+  if(!('BarcodeDetector' in window)){
+    document.getElementById('warnBanner').style.display='block';
+    showToast('Use iOS 17+ for scanning, or enter manually');
+    return;
   }
-  document.getElementById('idleOverlay').style.display = 'flex';
-  document.getElementById('scanBtn').textContent = 'Start Camera Scanner';
-  setStatus('Ready', '');
-  if (codeReader) { try { codeReader.reset(); } catch(e){} codeReader = null; }
+  document.getElementById('scanBtn').textContent='Starting…';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+    const video=document.getElementById('video');
+    video.srcObject=stream;
+    await video.play();
+    document.getElementById('idleOverlay').style.display='none';
+    scanning=true;
+    document.getElementById('scanBtn').textContent='Stop Scanner';
+    setStatus('Scanning… hold steady','scanning');
+    setTimeout(startDetecting,800);
+  }catch(e){
+    setStatus('Camera unavailable','');
+    document.getElementById('scanBtn').textContent='Start Camera Scanner';
+    showToast('Camera error: '+e.message);
+  }
 }
 
-function setStatus(text, type) {
-  document.getElementById('statusText').textContent = text;
-  const dot = document.getElementById('statusDot');
-  dot.className = 'dot' + (type ? ' ' + type : '');
+async function startDetecting(){
+  let detector;
+  try{ detector=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code']}); }
+  catch(e){ try{detector=new BarcodeDetector();}catch(e2){showToast('Scanner init failed');return;} }
+  const video=document.getElementById('video'), canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d');
+  scanInterval=setInterval(async()=>{
+    if(!scanning||video.readyState<2) return;
+    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+    ctx.drawImage(video,0,0);
+    try{
+      const results=await detector.detect(canvas);
+      if(results.length>0){
+        const code=results[0].rawValue;
+        if(code&&code!==lastCode){
+          lastCode=code;
+          clearTimeout(debounceTimer);
+          debounceTimer=setTimeout(()=>{stopScanner();handleBarcode(code);},300);
+        }
+      }
+    }catch(e){}
+  },200);
 }
 
-function manualLookup() {
-  const val = document.getElementById('manualInput').value.trim();
-  if (!val) { showToast('Enter a barcode first'); return; }
+function stopScanner(){
+  scanning=false; clearInterval(scanInterval); scanInterval=null; lastCode='';
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  document.getElementById('video').srcObject=null;
+  document.getElementById('idleOverlay').style.display='flex';
+  document.getElementById('scanBtn').textContent='Start Camera Scanner';
+  setStatus('Ready','');
+}
+
+function setStatus(text,type){
+  document.getElementById('statusText').textContent=text;
+  document.getElementById('statusDot').className='dot'+(type?' '+type:'');
+}
+
+function manualLookup(){
+  const val=document.getElementById('manualInput').value.trim();
+  if(!val){showToast('Enter a barcode first');return;}
   handleBarcode(val);
 }
+document.getElementById('manualInput').addEventListener('keydown',e=>{if(e.key==='Enter')manualLookup();});
 
-document.getElementById('manualInput').addEventListener('keydown', e => { if (e.key === 'Enter') manualLookup(); });
-
-// Core lookup flow
-function handleBarcode(code) {
-  currentBarcode = code;
-  document.getElementById('manualInput').value = code;
-  setStatus('Found: ' + code, 'detected');
+function handleBarcode(code){
+  currentBarcode=code;
+  document.getElementById('manualInput').value=code;
+  setStatus('Found: '+code,'detected');
+  showToast('Barcode: '+code);
   switchTab('listing');
-  showLoading();
+  document.getElementById('listingEmpty').style.display='none';
+  document.getElementById('listingLoading').style.display='block';
+  document.getElementById('listingForm').style.display='none';
   lookupProduct(code);
 }
 
-function showLoading() {
-  document.getElementById('listingEmpty').style.display = 'none';
-  document.getElementById('listingLoading').style.display = 'block';
-  document.getElementById('listingForm').style.display = 'none';
-}
-
-// Product lookup via Open Product Data APIs
-async function lookupProduct(barcode) {
-  let product = null;
-
-  // Try Open Food Facts first
-  try {
-    const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-    const d = await r.json();
-    if (d.status === 1 && d.product) {
-      const p = d.product;
-      product = {
-        found: true,
-        source: 'Open Food Facts',
-        name: p.product_name || p.product_name_en || '',
-        brand: p.brands || '',
-        category: p.categories ? p.categories.split(',')[0].trim() : 'Food & Grocery',
-        description: buildFoodDesc(p),
-        specs: buildFoodSpecs(p),
-        tags: buildTags(p.product_name, p.brands, p.categories)
-      };
+async function lookupProduct(barcode){
+  let product=null;
+  try{
+    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const d=await r.json();
+    if(d.status===1&&d.product&&d.product.product_name){
+      const p=d.product;
+      product={found:true,source:'Open Food Facts',name:p.product_name||'',brand:p.brands||'',category:p.categories?p.categories.split(',')[0].trim():'Food & Grocery',
+        description:[p.product_name,p.brands?`by ${p.brands}`:'',p.quantity?`— ${p.quantity}`:''].filter(Boolean).join(' '),
+        specs:[p.quantity?`Size: ${p.quantity}`:'',p.brands?`Brand: ${p.brands}`:''].filter(Boolean).join('\n'),
+        tags:buildTags(p.product_name,p.brands,p.categories)};
     }
-  } catch(e) {}
-
-  // Try Open Beauty Facts
-  if (!product) {
-    try {
-      const r = await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
-      const d = await r.json();
-      if (d.status === 1 && d.product && d.product.product_name) {
-        const p = d.product;
-        product = {
-          found: true,
-          source: 'Open Beauty Facts',
-          name: p.product_name || '',
-          brand: p.brands || '',
-          category: 'Health & Beauty',
-          description: `${p.product_name} by ${p.brands || 'unknown brand'}. ${p.generic_name || ''}`.trim(),
-          specs: p.quantity ? `Size: ${p.quantity}` : '',
-          tags: buildTags(p.product_name, p.brands, 'beauty cosmetics')
-        };
+  }catch(e){}
+  if(!product){
+    try{
+      const r=await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
+      const d=await r.json();
+      if(d.status===1&&d.product&&d.product.product_name){
+        const p=d.product;
+        product={found:true,source:'Open Beauty Facts',name:p.product_name||'',brand:p.brands||'',category:'Health & Beauty',
+          description:`${p.product_name} by ${p.brands||'unknown brand'}.`,specs:p.quantity?`Size: ${p.quantity}`:'',tags:buildTags(p.product_name,p.brands,'beauty')};
       }
-    } catch(e) {}
+    }catch(e){}
   }
-
-  // Try UPC Item DB (free, no key)
-  if (!product) {
-    try {
-      const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
-      const d = await r.json();
-      if (d.code === 'OK' && d.items && d.items.length > 0) {
-        const item = d.items[0];
-        product = {
-          found: true,
-          source: 'UPC Item DB',
-          name: item.title || '',
-          brand: item.brand || '',
-          category: item.category || 'General',
-          description: item.description || `${item.title} by ${item.brand || 'unknown brand'}.`,
-          specs: buildUpcSpecs(item),
-          price: item.lowest_recorded_price ? `$${item.lowest_recorded_price.toFixed(2)}` : '',
-          tags: buildTags(item.title, item.brand, item.category)
-        };
+  if(!product){
+    try{
+      const r=await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+      const d=await r.json();
+      if(d.code==='OK'&&d.items&&d.items.length>0){
+        const item=d.items[0];
+        product={found:true,source:'UPC Item DB',name:item.title||'',brand:item.brand||'',category:item.category||'General',
+          description:item.description||`${item.title}.`,
+          specs:[item.brand?`Brand: ${item.brand}`:'',item.model?`Model: ${item.model}`:'',item.color?`Color: ${item.color}`:''].filter(Boolean).join('\n'),
+          price:item.lowest_recorded_price?`$${item.lowest_recorded_price.toFixed(2)}`:'',
+          tags:buildTags(item.title,item.brand,item.category)};
       }
-    } catch(e) {}
+    }catch(e){}
   }
-
-  if (!product) {
-    product = {
-      found: false,
-      name: '',
-      brand: '',
-      category: '',
-      description: '',
-      specs: '',
-      tags: barcode
-    };
-  }
-
-  populateListing(barcode, product);
+  if(!product) product={found:false,name:'',brand:'',category:'',description:'',specs:'',tags:barcode};
+  populateListing(barcode,product);
 }
 
-function buildFoodDesc(p) {
-  let parts = [];
-  if (p.product_name) parts.push(p.product_name);
-  if (p.brands) parts.push(`by ${p.brands}`);
-  if (p.quantity) parts.push(`— ${p.quantity}`);
-  if (p.ingredients_text_en) parts.push(`Ingredients: ${p.ingredients_text_en.slice(0, 200)}`);
-  return parts.join(' ');
+function buildTags(a,b,c){
+  return[...new Set([a,b,c].join(' ').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w=>w.length>2).slice(0,8))].join(', ');
 }
 
-function buildFoodSpecs(p) {
-  let specs = [];
-  if (p.quantity) specs.push(`Size: ${p.quantity}`);
-  if (p.brands) specs.push(`Brand: ${p.brands}`);
-  if (p.countries) specs.push(`Origin: ${p.countries.split(',')[0].trim()}`);
-  if (p.packaging) specs.push(`Packaging: ${p.packaging.split(',')[0].trim()}`);
-  return specs.join('\n');
+function populateListing(barcode,product){
+  document.getElementById('listingLoading').style.display='none';
+  document.getElementById('listingForm').style.display='block';
+  document.getElementById('barcodeTag').textContent=barcode;
+  document.getElementById('foundBanner').innerHTML=product.found
+    ?`<div class="found-banner">✓ Found via ${product.source}</div>`
+    :`<div class="not-found-banner">⚠ Not found — fill in manually</div>`;
+  const title=[product.brand,product.name].filter(Boolean).join(' ').trim();
+  document.getElementById('fTitle').value=title.slice(0,80);
+  document.getElementById('fBrand').value=product.brand||'';
+  document.getElementById('fCategory').value=product.category||'';
+  document.getElementById('fDesc').value=product.description||'';
+  document.getElementById('fSpecs').value=[(product.specs||''),`UPC/EAN: ${barcode}`].filter(Boolean).join('\n');
+  document.getElementById('fPrice').value=product.price||'';
+  document.getElementById('fShipping').value='$9.99';
+  document.getElementById('fTags').value=product.tags||'';
+  const entry={barcode,name:title||'Unknown',time:Date.now(),product};
+  history=[entry,...history.filter(h=>h.barcode!==barcode)].slice(0,20);
+  localStorage.setItem('ebay_history',JSON.stringify(history));
 }
 
-function buildUpcSpecs(item) {
-  let specs = [];
-  if (item.brand) specs.push(`Brand: ${item.brand}`);
-  if (item.model) specs.push(`Model: ${item.model}`);
-  if (item.color) specs.push(`Color: ${item.color}`);
-  if (item.size) specs.push(`Size: ${item.size}`);
-  if (item.weight) specs.push(`Weight: ${item.weight}`);
-  return specs.join('\n');
-}
-
-function buildTags(name, brand, category) {
-  const words = [name, brand, category].join(' ').toLowerCase()
-    .replace(/[^a-z0-9\s]/g, '').split(/\s+/)
-    .filter(w => w.length > 2).slice(0, 8);
-  return [...new Set(words)].join(', ');
-}
-
-function populateListing(barcode, product) {
-  document.getElementById('listingLoading').style.display = 'none';
-  document.getElementById('listingForm').style.display = 'block';
-  document.getElementById('barcodeTag').textContent = barcode;
-
-  // Banner
-  const banner = document.getElementById('foundBanner');
-  if (product.found) {
-    banner.innerHTML = `<div class="found-banner">✓ Product found via ${product.source}</div>`;
-  } else {
-    banner.innerHTML = `<div class="not-found-banner">⚠ Product not found — please fill in details manually</div>`;
-  }
-
-  const title = product.name ? `${product.brand ? product.brand + ' ' : ''}${product.name}`.trim() : '';
-  document.getElementById('fTitle').value = title.slice(0, 80);
-  document.getElementById('fBrand').value = product.brand || '';
-  document.getElementById('fCategory').value = product.category || '';
-  document.getElementById('fDesc').value = product.description || '';
-  document.getElementById('fSpecs').value = (product.specs || '') + (barcode ? `\nUPC/EAN: ${barcode}` : '');
-  document.getElementById('fPrice').value = product.price || '';
-  document.getElementById('fShipping').value = '$9.99';
-  document.getElementById('fTags').value = product.tags || '';
-
-  // Save to history
-  const entry = { barcode, name: title || 'Unknown product', time: Date.now(), product };
-  history = [entry, ...history.filter(h => h.barcode !== barcode)].slice(0, 20);
-  localStorage.setItem('ebay_history', JSON.stringify(history));
-}
-
-function copyListing() {
-  const text = `TITLE: ${document.getElementById('fTitle').value}
-
+function copyListing(){
+  const text=`TITLE: ${document.getElementById('fTitle').value}
 CATEGORY: ${document.getElementById('fCategory').value}
 BRAND: ${document.getElementById('fBrand').value}
 CONDITION: ${document.getElementById('fCondition').value}
@@ -635,74 +343,35 @@ ${document.getElementById('fSpecs').value}
 
 PRICING:
 Buy It Now: ${document.getElementById('fPrice').value}
-Start Bid: ${document.getElementById('fBid').value || 'N/A'}
+Start Bid: ${document.getElementById('fBid').value||'N/A'}
 Shipping: ${document.getElementById('fShipping').value}
 Quantity: ${document.getElementById('fQty').value}
 
-SEARCH KEYWORDS: ${document.getElementById('fTags').value}`;
-
-  navigator.clipboard.writeText(text).then(() => showToast('Listing copied!')).catch(() => {
-    // Fallback for older iOS
-    const el = document.createElement('textarea');
-    el.value = text; el.style.position = 'fixed'; el.style.opacity = '0';
-    document.body.appendChild(el); el.select(); el.setSelectionRange(0, 99999);
-    document.execCommand('copy'); document.body.removeChild(el);
-    showToast('Listing copied!');
-  });
+KEYWORDS: ${document.getElementById('fTags').value}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast('Copied!')).catch(()=>fallbackCopy(text));
+  }else{fallbackCopy(text);}
 }
-
-function openEbay() {
-  const title = encodeURIComponent(document.getElementById('fTitle').value);
-  const upc = encodeURIComponent(currentBarcode);
-  window.open(`https://www.ebay.com/sl/sell?UPC=${upc}&title=${title}`, '_blank');
+function fallbackCopy(text){
+  const el=document.createElement('textarea');
+  el.value=text;el.style.cssText='position:fixed;opacity:0;';
+  document.body.appendChild(el);el.focus();el.select();el.setSelectionRange(0,99999);
+  try{document.execCommand('copy');showToast('Copied!');}catch(e){showToast('Long-press to copy');}
+  document.body.removeChild(el);
 }
+function openEbay(){window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${encodeURIComponent(document.getElementById('fTitle').value)}`,'_blank');}
+function scanAnother(){currentBarcode='';document.getElementById('manualInput').value='';switchTab('scan');}
 
-function scanAnother() {
-  currentBarcode = '';
-  document.getElementById('manualInput').value = '';
-  switchTab('scan');
+function renderHistory(){
+  const list=document.getElementById('historyList'),empty=document.getElementById('historyEmpty');
+  if(!history.length){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+  list.innerHTML=history.map((item,i)=>`<div class="history-item" onclick="restoreItem(${i})"><div class="history-thumb">📦</div><div class="history-info"><div class="history-name">${item.name||'Unknown'}</div><div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-
-// History
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  const empty = document.getElementById('historyEmpty');
-  if (history.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
-  empty.style.display = 'none';
-  list.innerHTML = history.map((item, i) => `
-    <div class="history-item" onclick="restoreItem(${i})">
-      <div class="history-thumb">📦</div>
-      <div class="history-info">
-        <div class="history-name">${item.name || 'Unknown'}</div>
-        <div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div>
-      </div>
-      <div class="history-arrow">›</div>
-    </div>
-  `).join('');
-}
-
-function restoreItem(i) {
-  const item = history[i];
-  currentBarcode = item.barcode;
-  switchTab('listing');
-  showLoading();
-  setTimeout(() => populateListing(item.barcode, item.product), 300);
-}
-
-function timeAgo(ts) {
-  const diff = (Date.now() - ts) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-  return Math.floor(diff/86400) + 'd ago';
-}
-
-// Toast
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
+function restoreItem(i){const item=history[i];currentBarcode=item.barcode;switchTab('listing');document.getElementById('listingEmpty').style.display='none';document.getElementById('listingLoading').style.display='block';document.getElementById('listingForm').style.display='none';setTimeout(()=>populateListing(item.barcode,item.product),200);}
+function timeAgo(ts){const d=(Date.now()-ts)/1000;if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+if(!('BarcodeDetector' in window))setTimeout(()=>{document.getElementById('warnBanner').style.display='block';},300);
 </script>
 </body>
 </html>
