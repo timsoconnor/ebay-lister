@@ -8,145 +8,200 @@
 <title>eBay Quick Lister</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--border2:#3a3a3a;--text:#f0ede8;--text2:#888;--text3:#555;--accent:#e8d5a3;--accent2:#c4a96b;--green:#4ade80;--red:#f87171;--radius:12px;--radius-sm:8px;}
+:root{
+  --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--border2:#3a3a3a;
+  --text:#f0ede8;--text2:#888;--text3:#555;--accent:#e8d5a3;--accent2:#c4a96b;
+  --green:#4ade80;--red:#f87171;--radius:14px;--radius-sm:10px;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
 #app{min-height:100vh;display:flex;flex-direction:column;}
-.header{padding:56px 20px 20px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+
+/* Header */
+.header{padding:56px 20px 18px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
 .header-logo{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .header h1{font-size:17px;font-weight:600;color:var(--text);}
 .header p{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* Tabs */
 .tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;}
 .tab{flex:1;padding:12px 0;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 40px;}
+
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 60px;}
 .page{display:none;}.page.active{display:block;}
 
-/* Scan area */
-.scan-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
-.scan-icon{font-size:52px;margin-bottom:16px;display:block;}
-.scan-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px;}
-.scan-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;}
-.scan-steps{text-align:left;background:var(--surface2);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;}
-.scan-step{font-size:13px;color:var(--text2);padding:4px 0;display:flex;gap:10px;align-items:flex-start;}
-.scan-step-num{color:var(--accent);font-weight:600;flex-shrink:0;width:16px;}
+/* ── SCAN PAGE ── */
 
-/* Preview */
-.preview-wrap{margin-bottom:16px;display:none;}
-#preview{width:100%;border-radius:var(--radius);display:block;border:1px solid var(--border);}
-.preview-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:8px;}
+/* iOS tip card */
+.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;}
+.tip-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.tip-icon{font-size:22px;}
+.tip-title{font-size:15px;font-weight:600;color:var(--text);}
+.tip-steps{display:flex;flex-direction:column;gap:8px;}
+.tip-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.5;}
+.tip-num{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0;margin-top:1px;}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;-webkit-appearance:none;width:100%;margin-bottom:10px;}
-.btn:active{opacity:0.7;transform:scale(0.98);}
-.btn-accent{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;}
-.btn-sm{padding:10px 16px;font-size:13px;margin-bottom:0;width:auto;flex:1;}
-.btn-row{display:flex;gap:8px;margin-bottom:10px;}
-/* Hidden file input */
-#cameraInput{display:none;}
+/* Big barcode input */
+.barcode-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+.entry-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:block;}
 
-.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;font-size:12px;font-weight:500;background:var(--surface2);color:var(--text2);margin-bottom:14px;}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
-.dot.ok{background:var(--green);}
-.dot.err{background:var(--red);}
-.dot.busy{background:var(--accent);animation:blink 0.8s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.barcode-field-wrap{position:relative;margin-bottom:12px;}
+.barcode-field{
+  width:100%;padding:16px 48px 16px 16px;
+  border-radius:var(--radius-sm);font-size:22px;font-weight:500;
+  letter-spacing:0.05em;font-family:'DM Mono',monospace;
+  border:2px solid var(--border2);background:var(--surface2);color:var(--text);
+  -webkit-appearance:none;transition:border-color 0.2s;
+  text-align:center;
+}
+.barcode-field:focus{outline:none;border-color:var(--accent2);}
+.barcode-field::placeholder{color:var(--text3);font-size:16px;letter-spacing:0;}
+.clear-btn{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;border-radius:50%;background:var(--border2);
+  border:none;color:var(--text2);font-size:14px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+}
+.clear-btn.visible{display:flex;}
 
-.divider{display:flex;align-items:center;gap:10px;margin:6px 0 16px;}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.divider span{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
-.input-row{display:flex;gap:8px;margin-bottom:16px;}
-.input{flex:1;padding:13px 14px;border-radius:var(--radius-sm);font-size:15px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;-webkit-appearance:none;}
-.input:focus{outline:none;border-color:var(--accent2);}
-.input::placeholder{color:var(--text3);}
+/* Action row under input */
+.entry-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0;}
+.entry-btn{
+  padding:14px 12px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;
+  cursor:pointer;border:1px solid var(--border2);background:var(--surface2);
+  color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.entry-btn:active{transform:scale(0.97);opacity:0.8;}
+.entry-btn.primary{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;grid-column:span 2;}
+.entry-btn.paste{background:var(--surface2);}
 
-/* Listing form */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
-.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.card-title{font-size:13px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.06em;}
-.barcode-tag{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:4px 8px;border-radius:6px;color:var(--text2);}
-.card-body{padding:14px 16px;}
-.field{margin-bottom:14px;}.field:last-child{margin-bottom:0;}
-.label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;display:block;}
-.field-input{width:100%;padding:11px 13px;border-radius:var(--radius-sm);font-size:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none;resize:vertical;}
-.field-input:focus{outline:none;border-color:var(--accent2);}
-select.field-input{appearance:none;-webkit-appearance:none;}
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* Recent barcodes */
+.recents-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.recents-clear{font-size:11px;color:var(--text3);cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;}
+.recents-list{display:flex;flex-direction:column;gap:8px;}
+.recent-chip{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.15s;
+}
+.recent-chip:active{border-color:var(--accent2);}
+.recent-barcode{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--text);flex:1;}
+.recent-name{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
+.recent-arrow{color:var(--text3);font-size:16px;flex-shrink:0;}
 
+/* ── LISTING PAGE ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
 .loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
 .spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:var(--text2);}
 .loading-sub{font-size:12px;color:var(--text3);margin-top:4px;}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
-.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
+.card-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.07em;}
+.barcode-tag{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:3px 8px;border-radius:6px;color:var(--text2);}
+.card-body{padding:14px 16px;}
+.field{margin-bottom:13px;}.field:last-child{margin-bottom:0;}
+.label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;display:block;}
+.field-input{width:100%;padding:11px 13px;border-radius:var(--radius-sm);font-size:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none;resize:vertical;}
+.field-input:focus{outline:none;border-color:var(--accent2);}
+select.field-input{appearance:none;-webkit-appearance:none;}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
+.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
+
+.action-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;width:100%;margin-bottom:10px;}
+.action-btn:active{opacity:0.7;transform:scale(0.98);}
+.action-btn.accent{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.action-row .action-btn{margin-bottom:0;}
+
+/* ── HISTORY PAGE ── */
 .history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;}
 .history-item:active{border-color:var(--accent2);}
-.history-thumb{width:44px;height:44px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.history-thumb{width:42px;height:42px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .history-info{flex:1;min-width:0;}
 .history-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .history-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
 .history-arrow{color:var(--text3);font-size:18px;}
 
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;pointer-events:none;}
+/* Toast */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 22px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.25s;z-index:999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
-.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="header">
     <div class="header-logo">📦</div>
-    <div><h1>eBay Quick Lister</h1><p>Scan · Look up · List</p></div>
+    <div><h1>eBay Quick Lister</h1><p>Enter barcode · Look up · List</p></div>
   </div>
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('scan')">Scanner</button>
+    <button class="tab active" onclick="switchTab('scan')">Enter Barcode</button>
     <button class="tab" onclick="switchTab('listing')">Listing</button>
     <button class="tab" onclick="switchTab('history')">History</button>
   </div>
   <div class="content">
 
-    <!-- SCAN TAB -->
+    <!-- SCAN / ENTRY TAB -->
     <div class="page active" id="tab-scan">
 
-      <div class="scan-hero">
-        <span class="scan-icon">📷</span>
-        <div class="scan-title">Scan a barcode</div>
-        <div class="scan-desc">Takes a photo using your iPhone camera and reads the barcode automatically.</div>
-        <div class="scan-steps">
-          <div class="scan-step"><span class="scan-step-num">1</span><span>Tap the button below</span></div>
-          <div class="scan-step"><span class="scan-step-num">2</span><span>iPhone camera opens — point at barcode</span></div>
-          <div class="scan-step"><span class="scan-step-num">3</span><span>Tap the shutter to take the photo</span></div>
-          <div class="scan-step"><span class="scan-step-num">4</span><span>Tap "Use Photo" — listing fills in automatically</span></div>
+      <div class="tip-card">
+        <div class="tip-header">
+          <span class="tip-icon">📱</span>
+          <span class="tip-title">How to get the barcode</span>
         </div>
-        <!-- This is the magic: native iOS camera capture, no library needed -->
-        <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
-        <button class="btn btn-accent" onclick="document.getElementById('cameraInput').click()">📷 Open Camera to Scan</button>
+        <div class="tip-steps">
+          <div class="tip-step"><div class="tip-num">1</div><span>Open your iPhone <strong>Camera app</strong> and point it at the barcode</span></div>
+          <div class="tip-step"><div class="tip-num">2</div><span>A <strong>yellow banner</strong> appears — long press it to copy the number</span></div>
+          <div class="tip-step"><div class="tip-num">3</div><span>Come back here, tap the field below, and hit <strong>Paste</strong></span></div>
+        </div>
       </div>
 
-      <div class="preview-wrap" id="previewWrap">
-        <img id="preview" alt="Captured photo"/>
-        <div class="preview-hint">Processing barcode from photo…</div>
+      <div class="barcode-entry">
+        <label class="entry-label">Barcode / UPC / EAN</label>
+        <div class="barcode-field-wrap">
+          <input
+            class="barcode-field"
+            id="barcodeField"
+            type="text"
+            inputmode="numeric"
+            placeholder="e.g. 012345678905"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            oninput="onBarcodeInput()"
+          />
+          <button class="clear-btn" id="clearBtn" onclick="clearField()">✕</button>
+        </div>
+        <div class="entry-actions">
+          <button class="entry-btn paste" onclick="pasteBarcode()">📋 Paste</button>
+          <button class="entry-btn" onclick="openCamera()">📷 Camera</button>
+          <button class="entry-btn primary" id="lookupBtn" onclick="doLookup()">Look up barcode →</button>
+        </div>
       </div>
 
-      <div class="status-pill"><div class="dot" id="statusDot"></div><span id="statusText">Ready</span></div>
-
-      <div class="divider"><span>or enter manually</span></div>
-      <div class="input-row">
-        <input class="input" id="manualInput" type="text" inputmode="numeric" placeholder="Barcode / UPC / EAN…"/>
-        <button class="btn btn-sm" style="width:auto;flex-shrink:0" onclick="manualLookup()">Look up</button>
+      <div id="recentsSection" style="display:none">
+        <div class="recents-label">
+          Recent scans
+          <span class="recents-clear" onclick="clearRecents()">Clear</span>
+        </div>
+        <div class="recents-list" id="recentsList"></div>
       </div>
+
     </div>
 
     <!-- LISTING TAB -->
     <div class="page" id="tab-listing">
-      <div id="listingEmpty" class="empty-state"><div class="empty-icon">🏷️</div><p>Scan an item to generate<br>your eBay listing</p></div>
+      <div id="listingEmpty" class="empty-state"><div class="empty-icon">🏷️</div><p>Enter a barcode to generate<br>your eBay listing</p></div>
       <div id="listingLoading" class="loading-card" style="display:none">
         <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Reading barcode…</div>
-        <div class="loading-sub" id="loadingSub">This takes just a moment</div>
+        <div class="loading-text" id="loadingText">Looking up product…</div>
+        <div class="loading-sub">Searching product databases</div>
       </div>
       <div id="listingForm" style="display:none">
         <div id="foundBanner"></div>
@@ -157,7 +212,10 @@ select.field-input{appearance:none;-webkit-appearance:none;}
             <div class="field"><label class="label">Category</label><input class="field-input" id="fCategory" type="text"/></div>
             <div class="field"><label class="label">Brand</label><input class="field-input" id="fBrand" type="text"/></div>
             <div class="field"><label class="label">Condition</label>
-              <select class="field-input" id="fCondition"><option>New</option><option>Open box</option><option selected>Used – Like New</option><option>Used – Good</option><option>Used – Fair</option><option>For parts or not working</option></select>
+              <select class="field-input" id="fCondition">
+                <option>New</option><option>Open box</option><option selected>Used – Like New</option>
+                <option>Used – Good</option><option>Used – Fair</option><option>For parts or not working</option>
+              </select>
             </div>
             <div class="field"><label class="label">Description</label><textarea class="field-input" id="fDesc" rows="4"></textarea></div>
             <div class="field"><label class="label">Item Specifics</label><textarea class="field-input" id="fSpecs" rows="3"></textarea></div>
@@ -178,229 +236,226 @@ select.field-input{appearance:none;-webkit-appearance:none;}
           <div class="card-header"><span class="card-title">Search Keywords</span></div>
           <div class="card-body"><div class="field"><input class="field-input" id="fTags" type="text" placeholder="keyword1, keyword2…"/></div></div>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-sm" onclick="copyListing()">Copy listing</button>
-          <button class="btn btn-sm btn-accent" onclick="openEbay()">Open eBay ↗</button>
+        <div class="action-row">
+          <button class="action-btn" onclick="copyListing()">Copy listing</button>
+          <button class="action-btn accent" onclick="openEbay()">eBay ↗</button>
         </div>
-        <button class="btn" onclick="scanAnother()">Scan another item</button>
+        <button class="action-btn" onclick="scanAnother()">← Enter another barcode</button>
       </div>
     </div>
 
     <!-- HISTORY TAB -->
     <div class="page" id="tab-history">
-      <div id="historyEmpty" class="empty-state"><div class="empty-icon">📋</div><p>Your scanned items<br>will appear here</p></div>
+      <div id="historyEmpty" class="empty-state"><div class="empty-icon">📋</div><p>Your looked-up items<br>will appear here</p></div>
       <div id="historyList"></div>
     </div>
 
   </div>
 </div>
-<canvas id="canvas" style="display:none"></canvas>
 <div class="toast" id="toast"></div>
 
 <script>
-let currentBarcode='';
-let history=JSON.parse(localStorage.getItem('ebay_history')||'[]');
+let currentBarcode = '';
+let history = JSON.parse(localStorage.getItem('ebay_history') || '[]');
+let recents = JSON.parse(localStorage.getItem('ebay_recents') || '[]');
 
-// ── Tabs ─────────────────────────────────────────────────────────────────────
-function switchTab(tab){
-  ['scan','listing','history'].forEach((n,i)=>{
-    document.querySelectorAll('.tab')[i].classList.toggle('active',n===tab);
-    document.getElementById('tab-'+n).classList.toggle('active',n===tab);
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['scan','listing','history'].forEach((n,i) => {
+    document.querySelectorAll('.tab')[i].classList.toggle('active', n === tab);
+    document.getElementById('tab-' + n).classList.toggle('active', n === tab);
   });
-  if(tab==='history') renderHistory();
+  if (tab === 'history') renderHistory();
+  if (tab === 'scan') renderRecents();
 }
 
-// ── Photo capture & decode ────────────────────────────────────────────────────
-function handlePhoto(input){
-  if(!input.files||!input.files[0]) return;
-  const file=input.files[0];
-  // Reset input so same photo can be retried
-  input.value='';
+// ── Barcode field ─────────────────────────────────────────────────────────────
+function onBarcodeInput() {
+  const val = document.getElementById('barcodeField').value.trim();
+  document.getElementById('clearBtn').classList.toggle('visible', val.length > 0);
+}
 
-  setStatus('Reading barcode…','busy');
-  switchTab('listing');
-  setLoading('Reading barcode from photo…','Hang tight…');
+function clearField() {
+  document.getElementById('barcodeField').value = '';
+  document.getElementById('clearBtn').classList.remove('visible');
+  document.getElementById('barcodeField').focus();
+}
 
-  const url=URL.createObjectURL(file);
-
-  // Show preview
-  const preview=document.getElementById('preview');
-  const previewWrap=document.getElementById('previewWrap');
-  preview.src=url;
-  previewWrap.style.display='block';
-
-  const img=new Image();
-  img.onload=async()=>{
-    const canvas=document.getElementById('canvas');
-    // Use full resolution for best decode chance
-    canvas.width=img.naturalWidth;
-    canvas.height=img.naturalHeight;
-    const ctx=canvas.getContext('2d');
-    ctx.drawImage(img,0,0);
-
-    let code=null;
-
-    // Try BarcodeDetector on the image (works on canvas in some iOS versions)
-    if(!code && 'BarcodeDetector' in window){
-      try{
-        const detector=new BarcodeDetector();
-        const results=await detector.detect(img);
-        if(results.length>0) code=results[0].rawValue;
-      }catch(e){}
-    }
-
-    // Try BarcodeDetector on canvas
-    if(!code && 'BarcodeDetector' in window){
-      try{
-        const detector=new BarcodeDetector();
-        const results=await detector.detect(canvas);
-        if(results.length>0) code=results[0].rawValue;
-      }catch(e){}
-    }
-
-    // Try with different crop regions if still no result
-    if(!code && 'BarcodeDetector' in window){
-      try{
-        const detector=new BarcodeDetector();
-        // Try center crop
-        const cropCanvas=document.createElement('canvas');
-        const cw=Math.floor(img.naturalWidth*0.8);
-        const ch=Math.floor(img.naturalHeight*0.8);
-        cropCanvas.width=cw; cropCanvas.height=ch;
-        const cctx=cropCanvas.getContext('2d');
-        cctx.drawImage(img,
-          Math.floor(img.naturalWidth*0.1), Math.floor(img.naturalHeight*0.1),
-          cw, ch, 0, 0, cw, ch
-        );
-        const results=await detector.detect(cropCanvas);
-        if(results.length>0) code=results[0].rawValue;
-      }catch(e){}
-    }
-
-    URL.revokeObjectURL(url);
-
-    if(code){
-      previewWrap.style.display='none';
-      handleBarcode(code);
+async function pasteBarcode() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const cleaned = text.replace(/\D/g, '').trim();
+    if (cleaned.length >= 6) {
+      document.getElementById('barcodeField').value = cleaned;
+      onBarcodeInput();
+      showToast('Pasted: ' + cleaned);
+      // Auto-lookup if it looks like a valid barcode
+      if (cleaned.length >= 8) setTimeout(doLookup, 400);
+    } else if (text.trim().length > 0) {
+      // Might be non-numeric barcode (Code128 etc)
+      document.getElementById('barcodeField').value = text.trim();
+      onBarcodeInput();
+      showToast('Pasted');
     } else {
-      // Not found — show retry option
-      setStatus('No barcode found','err');
-      hideLoading();
-      showToast('No barcode found — try again closer');
-      switchTab('scan');
-      previewWrap.style.display='none';
+      showToast('Nothing on clipboard');
     }
-  };
-  img.onerror=()=>{
-    setStatus('Could not read image','err');
-    hideLoading();
-    switchTab('scan');
-  };
-  img.src=url;
+  } catch(e) {
+    // Fallback: focus field so system paste menu appears
+    const field = document.getElementById('barcodeField');
+    field.focus();
+    field.select();
+    showToast('Tap and hold the field to paste');
+  }
 }
+
+function openCamera() {
+  // Opens native iOS camera — user reads barcode, copies number from yellow banner
+  showToast('Use Camera app → long press yellow banner → Copy');
+}
+
+function doLookup() {
+  const val = document.getElementById('barcodeField').value.replace(/\D/g, '').trim()
+    || document.getElementById('barcodeField').value.trim();
+  if (!val) { showToast('Enter a barcode first'); document.getElementById('barcodeField').focus(); return; }
+  handleBarcode(val);
+}
+
+document.getElementById('barcodeField').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLookup();
+});
 
 // ── Core flow ─────────────────────────────────────────────────────────────────
-function handleBarcode(code){
-  currentBarcode=code;
-  document.getElementById('manualInput').value=code;
-  setStatus('Found: '+code,'ok');
-  showToast('Barcode: '+code);
+function handleBarcode(code) {
+  currentBarcode = code;
+  // Save to recents
+  recents = [code, ...recents.filter(r => r !== code)].slice(0, 8);
+  localStorage.setItem('ebay_recents', JSON.stringify(recents));
+
   switchTab('listing');
-  setLoading('Looking up product…','Searching databases');
+  document.getElementById('listingEmpty').style.display = 'none';
+  document.getElementById('listingLoading').style.display = 'block';
+  document.getElementById('listingForm').style.display = 'none';
   lookupProduct(code);
 }
 
-function manualLookup(){
-  const val=document.getElementById('manualInput').value.trim();
-  if(!val){showToast('Enter a barcode first');return;}
-  handleBarcode(val);
+// ── Recents ───────────────────────────────────────────────────────────────────
+function renderRecents() {
+  const section = document.getElementById('recentsSection');
+  const list = document.getElementById('recentsList');
+  if (!recents.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  // Find names from history
+  list.innerHTML = recents.map(code => {
+    const entry = history.find(h => h.barcode === code);
+    const name = entry ? entry.name : '';
+    return `<div class="recent-chip" onclick="useRecent('${code}')">
+      <div class="recent-barcode">${code}</div>
+      ${name ? `<div class="recent-name">${name}</div>` : ''}
+      <div class="recent-arrow">→</div>
+    </div>`;
+  }).join('');
 }
-document.getElementById('manualInput').addEventListener('keydown',e=>{if(e.key==='Enter')manualLookup();});
 
-function setLoading(text,sub){
-  document.getElementById('listingEmpty').style.display='none';
-  document.getElementById('listingLoading').style.display='block';
-  document.getElementById('listingForm').style.display='none';
-  document.getElementById('loadingText').textContent=text;
-  document.getElementById('loadingSub').textContent=sub;
+function useRecent(code) {
+  document.getElementById('barcodeField').value = code;
+  onBarcodeInput();
+  handleBarcode(code);
 }
-function hideLoading(){
-  document.getElementById('listingLoading').style.display='none';
+
+function clearRecents() {
+  recents = [];
+  localStorage.setItem('ebay_recents', JSON.stringify(recents));
+  renderRecents();
 }
 
 // ── Product lookup ─────────────────────────────────────────────────────────────
-async function lookupProduct(barcode){
-  let product=null;
-  try{
-    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-    const d=await r.json();
-    if(d.status===1&&d.product&&d.product.product_name){
-      const p=d.product;
-      product={found:true,source:'Open Food Facts',name:p.product_name||'',brand:p.brands||'',
-        category:p.categories?p.categories.split(',')[0].trim():'Food & Grocery',
-        description:[p.product_name,p.brands?`by ${p.brands}`:'',p.quantity?`— ${p.quantity}`:''].filter(Boolean).join(' '),
-        specs:[p.quantity?`Size: ${p.quantity}`:'',p.brands?`Brand: ${p.brands}`:''].filter(Boolean).join('\n'),
-        tags:buildTags(p.product_name,p.brands,p.categories)};
+async function lookupProduct(barcode) {
+  let product = null;
+
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const d = await r.json();
+    if (d.status === 1 && d.product && d.product.product_name) {
+      const p = d.product;
+      product = {
+        found: true, source: 'Open Food Facts',
+        name: p.product_name || '', brand: p.brands || '',
+        category: p.categories ? p.categories.split(',')[0].trim() : 'Food & Grocery',
+        description: [p.product_name, p.brands ? `by ${p.brands}` : '', p.quantity ? `— ${p.quantity}` : ''].filter(Boolean).join(' '),
+        specs: [p.quantity ? `Size: ${p.quantity}` : '', p.brands ? `Brand: ${p.brands}` : ''].filter(Boolean).join('\n'),
+        tags: buildTags(p.product_name, p.brands, p.categories)
+      };
     }
-  }catch(e){}
-  if(!product){
-    try{
-      const r=await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
-      const d=await r.json();
-      if(d.status===1&&d.product&&d.product.product_name){
-        const p=d.product;
-        product={found:true,source:'Open Beauty Facts',name:p.product_name||'',brand:p.brands||'',category:'Health & Beauty',
-          description:`${p.product_name} by ${p.brands||'unknown brand'}.`,
-          specs:p.quantity?`Size: ${p.quantity}`:'',tags:buildTags(p.product_name,p.brands,'beauty')};
+  } catch(e) {}
+
+  if (!product) {
+    try {
+      const r = await fetch(`https://world.openbeautyfacts.org/api/v0/product/${barcode}.json`);
+      const d = await r.json();
+      if (d.status === 1 && d.product && d.product.product_name) {
+        const p = d.product;
+        product = {
+          found: true, source: 'Open Beauty Facts',
+          name: p.product_name || '', brand: p.brands || '', category: 'Health & Beauty',
+          description: `${p.product_name} by ${p.brands || 'unknown brand'}.`,
+          specs: p.quantity ? `Size: ${p.quantity}` : '',
+          tags: buildTags(p.product_name, p.brands, 'beauty')
+        };
       }
-    }catch(e){}
+    } catch(e) {}
   }
-  if(!product){
-    try{
-      const r=await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
-      const d=await r.json();
-      if(d.code==='OK'&&d.items&&d.items.length>0){
-        const item=d.items[0];
-        product={found:true,source:'UPC Item DB',name:item.title||'',brand:item.brand||'',category:item.category||'General',
-          description:item.description||`${item.title}.`,
-          specs:[item.brand?`Brand: ${item.brand}`:'',item.model?`Model: ${item.model}`:'',item.color?`Color: ${item.color}`:''].filter(Boolean).join('\n'),
-          price:item.lowest_recorded_price?`$${item.lowest_recorded_price.toFixed(2)}`:'',
-          tags:buildTags(item.title,item.brand,item.category)};
+
+  if (!product) {
+    try {
+      const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+      const d = await r.json();
+      if (d.code === 'OK' && d.items && d.items.length > 0) {
+        const item = d.items[0];
+        product = {
+          found: true, source: 'UPC Item DB',
+          name: item.title || '', brand: item.brand || '', category: item.category || 'General',
+          description: item.description || `${item.title}.`,
+          specs: [item.brand ? `Brand: ${item.brand}` : '', item.model ? `Model: ${item.model}` : '', item.color ? `Color: ${item.color}` : ''].filter(Boolean).join('\n'),
+          price: item.lowest_recorded_price ? `$${item.lowest_recorded_price.toFixed(2)}` : '',
+          tags: buildTags(item.title, item.brand, item.category)
+        };
       }
-    }catch(e){}
+    } catch(e) {}
   }
-  if(!product) product={found:false,name:'',brand:'',category:'',description:'',specs:'',tags:barcode};
-  populateListing(barcode,product);
+
+  if (!product) product = { found: false, name: '', brand: '', category: '', description: '', specs: '', tags: barcode };
+  populateListing(barcode, product);
 }
 
-function buildTags(a,b,c){
-  return[...new Set([a,b,c].join(' ').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w=>w.length>2).slice(0,8))].join(', ');
+function buildTags(a, b, c) {
+  return [...new Set([a,b,c].join(' ').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w => w.length > 2).slice(0, 8))].join(', ');
 }
 
-function populateListing(barcode,product){
-  document.getElementById('listingLoading').style.display='none';
-  document.getElementById('listingForm').style.display='block';
-  document.getElementById('barcodeTag').textContent=barcode;
-  document.getElementById('foundBanner').innerHTML=product.found
-    ?`<div class="found-banner">✓ Found via ${product.source}</div>`
-    :`<div class="not-found-banner">⚠ Product not found — fill in manually</div>`;
-  const title=[product.brand,product.name].filter(Boolean).join(' ').trim();
-  document.getElementById('fTitle').value=title.slice(0,80);
-  document.getElementById('fBrand').value=product.brand||'';
-  document.getElementById('fCategory').value=product.category||'';
-  document.getElementById('fDesc').value=product.description||'';
-  document.getElementById('fSpecs').value=[(product.specs||''),`UPC/EAN: ${barcode}`].filter(Boolean).join('\n');
-  document.getElementById('fPrice').value=product.price||'';
-  document.getElementById('fShipping').value='$9.99';
-  document.getElementById('fTags').value=product.tags||'';
-  const entry={barcode,name:title||'Unknown',time:Date.now(),product};
-  history=[entry,...history.filter(h=>h.barcode!==barcode)].slice(0,20);
-  localStorage.setItem('ebay_history',JSON.stringify(history));
+function populateListing(barcode, product) {
+  document.getElementById('listingLoading').style.display = 'none';
+  document.getElementById('listingForm').style.display = 'block';
+  document.getElementById('barcodeTag').textContent = barcode;
+  document.getElementById('foundBanner').innerHTML = product.found
+    ? `<div class="found-banner">✓ Found via ${product.source}</div>`
+    : `<div class="not-found-banner">⚠ Product not found — fill in manually</div>`;
+  const title = [product.brand, product.name].filter(Boolean).join(' ').trim();
+  document.getElementById('fTitle').value = title.slice(0, 80);
+  document.getElementById('fBrand').value = product.brand || '';
+  document.getElementById('fCategory').value = product.category || '';
+  document.getElementById('fDesc').value = product.description || '';
+  document.getElementById('fSpecs').value = [(product.specs || ''), `UPC/EAN: ${barcode}`].filter(Boolean).join('\n');
+  document.getElementById('fPrice').value = product.price || '';
+  document.getElementById('fShipping').value = '$9.99';
+  document.getElementById('fTags').value = product.tags || '';
+
+  const entry = { barcode, name: title || 'Unknown', time: Date.now(), product };
+  history = [entry, ...history.filter(h => h.barcode !== barcode)].slice(0, 30);
+  localStorage.setItem('ebay_history', JSON.stringify(history));
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-function copyListing(){
-  const text=`TITLE: ${document.getElementById('fTitle').value}
+function copyListing() {
+  const text = `TITLE: ${document.getElementById('fTitle').value}
 CATEGORY: ${document.getElementById('fCategory').value}
 BRAND: ${document.getElementById('fBrand').value}
 CONDITION: ${document.getElementById('fCondition').value}
@@ -414,48 +469,84 @@ ${document.getElementById('fSpecs').value}
 
 PRICING:
 Buy It Now: ${document.getElementById('fPrice').value}
-Start Bid: ${document.getElementById('fBid').value||'N/A'}
+Start Bid: ${document.getElementById('fBid').value || 'N/A'}
 Shipping: ${document.getElementById('fShipping').value}
 Quantity: ${document.getElementById('fQty').value}
 
 KEYWORDS: ${document.getElementById('fTags').value}`;
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>showToast('Copied!')).catch(()=>fallbackCopy(text));
-  }else{fallbackCopy(text);}
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('Listing copied!')).catch(() => fallbackCopy(text));
+  } else { fallbackCopy(text); }
 }
-function fallbackCopy(text){
-  const el=document.createElement('textarea');
-  el.value=text;el.style.cssText='position:fixed;opacity:0;top:0;left:0;';
-  document.body.appendChild(el);el.focus();el.select();el.setSelectionRange(0,99999);
-  try{document.execCommand('copy');showToast('Copied!');}catch(e){showToast('Copy failed');}
+
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text; el.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(el); el.focus(); el.select(); el.setSelectionRange(0, 99999);
+  try { document.execCommand('copy'); showToast('Listing copied!'); } catch(e) { showToast('Copy failed'); }
   document.body.removeChild(el);
 }
-function openEbay(){window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${encodeURIComponent(document.getElementById('fTitle').value)}`,'_blank');}
-function scanAnother(){currentBarcode='';document.getElementById('manualInput').value='';switchTab('scan');}
+
+function openEbay() {
+  const title = encodeURIComponent(document.getElementById('fTitle').value);
+  window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${title}`, '_blank');
+}
+
+function scanAnother() {
+  currentBarcode = '';
+  document.getElementById('barcodeField').value = '';
+  document.getElementById('clearBtn').classList.remove('visible');
+  switchTab('scan');
+  setTimeout(() => document.getElementById('barcodeField').focus(), 300);
+}
 
 // ── History ───────────────────────────────────────────────────────────────────
-function renderHistory(){
-  const list=document.getElementById('historyList'),empty=document.getElementById('historyEmpty');
-  if(!history.length){empty.style.display='block';list.innerHTML='';return;}
-  empty.style.display='none';
-  list.innerHTML=history.map((item,i)=>`<div class="history-item" onclick="restoreItem(${i})"><div class="history-thumb">📦</div><div class="history-info"><div class="history-name">${item.name||'Unknown'}</div><div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div></div><div class="history-arrow">›</div></div>`).join('');
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if (!history.length) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = history.map((item, i) => `
+    <div class="history-item" onclick="restoreItem(${i})">
+      <div class="history-thumb">📦</div>
+      <div class="history-info">
+        <div class="history-name">${item.name || 'Unknown'}</div>
+        <div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div>
+      </div>
+      <div class="history-arrow">›</div>
+    </div>`).join('');
 }
-function restoreItem(i){
-  const item=history[i];currentBarcode=item.barcode;switchTab('listing');
-  setLoading('Loading…','');
-  setTimeout(()=>populateListing(item.barcode,item.product),200);
-}
-function timeAgo(ts){const d=(Date.now()-ts)/1000;if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';}
 
-// ── Utils ─────────────────────────────────────────────────────────────────────
-function setStatus(text,type){
-  document.getElementById('statusText').textContent=text;
-  document.getElementById('statusDot').className='dot'+(type?' '+type:'');
+function restoreItem(i) {
+  const item = history[i];
+  currentBarcode = item.barcode;
+  document.getElementById('barcodeField').value = item.barcode;
+  onBarcodeInput();
+  switchTab('listing');
+  document.getElementById('listingEmpty').style.display = 'none';
+  document.getElementById('listingLoading').style.display = 'block';
+  document.getElementById('listingForm').style.display = 'none';
+  setTimeout(() => populateListing(item.barcode, item.product), 150);
 }
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+
+function timeAgo(ts) {
+  const d = (Date.now() - ts) / 1000;
+  if (d < 60) return 'just now';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
 }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+renderRecents();
 </script>
 </body>
 </html>
