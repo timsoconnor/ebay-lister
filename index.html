@@ -321,9 +321,9 @@ async function lookupWithClaude(barcode) {
 
   setStatus('Searching for product…', 'Barcode: ' + barcode);
 
-  const prompt = `You are an eBay listing assistant. Look up the product with barcode/UPC "${barcode}" and return ONLY a valid JSON object, no markdown, no explanation.
+  const apiPrompt = `You are an eBay listing assistant. Look up the product with barcode/UPC "${barcode}" and return ONLY a valid JSON object, no markdown, no explanation.
 
-Use web search to identify the product. This is likely a video game or action figure.
+This is likely a video game or action figure. Use your training knowledge to identify it.
 
 Return this exact JSON structure:
 {
@@ -366,7 +366,7 @@ If not found set found to false and fill in what you can. Type should be "game",
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 800,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: apiPrompt }]
       })
     });
 
