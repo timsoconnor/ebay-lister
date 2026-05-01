@@ -342,9 +342,15 @@ Return this exact JSON structure:
 
 If not found set found to false and fill in what you can. Type should be "game", "figure", or "general".`;
 
-  // 30 second timeout
+  // 20 second timeout with countdown
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30000);
+  let secs = 20;
+  const countdown = setInterval(() => {
+    secs--;
+    setStatus('Asking Claude…', `Timeout in ${secs}s — if this hangs, check your API key`);
+    if (secs <= 0) clearInterval(countdown);
+  }, 1000);
+  const timer = setTimeout(() => { controller.abort(); clearInterval(countdown); }, 20000);
 
   try {
     setStatus('Asking Claude…', 'Using built-in knowledge + training data');
@@ -365,6 +371,7 @@ If not found set found to false and fill in what you can. Type should be "game",
     });
 
     clearTimeout(timer);
+    clearInterval(countdown);
 
     if (!response.ok) {
       const err = await response.text();
@@ -380,6 +387,7 @@ If not found set found to false and fill in what you can. Type should be "game",
 
   } catch(e) {
     clearTimeout(timer);
+    clearInterval(countdown);
     const msg = e.name === 'AbortError' ? 'Request timed out after 30s' : e.message;
     document.getElementById('listingLoading').style.display = 'none';
     document.getElementById('listingForm').style.display = 'block';
