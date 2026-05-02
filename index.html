@@ -364,12 +364,63 @@ async function runCheck(barcode){
     }
   } catch(e) {}
 
-  // Step 2: ask Claude for pricing using name (or barcode if not found)
-  const lookupStr = foundViaProxy
-    ? `"${productName}"${platform ? ' for ' + platform : ''}`
-    : `barcode ${barcode} (product name unknown)`;
+  // Step 2: if not found via proxy, ask user for the name
+  if (!foundViaProxy) {
+    resultArea.innerHTML = `
+      <div class="verdict-card" style="border-color:var(--yellow-border);">
+        <div class="verdict-header">
+          <div class="verdict-title" style="font-size:15px;">Barcode not recognised</div>
+        </div>
+        <div class="verdict-body">
+          <div class="reasoning">ScanDex doesn't have barcode <strong>${barcode}</strong>. Enter the item name and I'll price it.</div>
+          <div style="position:relative;margin-top:4px;">
+            <input id="nameInput"
+              style="width:100%;padding:14px 16px;background:var(--surface2);border:2px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:DM Sans,sans-serif;font-size:15px;-webkit-appearance:none;box-sizing:border-box;"
+              placeholder="e.g. Assault Suit Leynos PS4"
+              autocorrect="off" spellcheck="false"
+            />
+          </div>
+          <button class="btn btn-check" style="width:100%;margin-top:0;" onclick="checkByName('${barcode}')">Check value →</button>
+        </div>
+      </div>`;
+    setTimeout(() => {
+      const inp = document.getElementById('nameInput');
+      if (inp) inp.focus();
+    }, 200);
+    return;
+  }
 
-  showLoading('Checking resale value…', foundViaProxy ? `Found: ${productName}` : 'Estimating from barcode');
+  // Step 2: ask Claude for pricing using name
+  const lookupStr = `"${productName}"${platform ? ' for ' + platform : ''}`;
+  showLoading('Checking resale value…', `Found: ${productName}`);
+
+  await askClaudeForPricing(barcode, productName, platform, type);
+}
+
+async function askClaudeForPricing(barcode, productName, platform, type) {
+  const resultArea = document.getElementById('resultArea');
+
+  const showError = (msg) => {
+    resultArea.innerHTML = `
+      <div class="verdict-card" style="border-color:var(--border);">
+        <div class="verdict-body" style="padding:20px;">
+          <div class="reasoning" style="color:var(--red);">⚠ ${msg}</div>
+          <button class="next-btn" onclick="doCheck()" style="margin-top:10px;">Try again</button>
+        </div>
+      </div>`;
+    renderHistory();
+  };
+
+  const lookupStr = productName
+    ? `"${productName}"${platform ? ' for ' + platform : ''}`
+    : `barcode ${barcode} (unknown product)`;
+
+  resultArea.innerHTML = `
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-text">Checking resale value…</div>
+      <div class="loading-sub">${productName || barcode}</div>
+    </div>`;
 
   const apiPrompt = `You are a resale price expert for video games and action figures.
 Give me current eBay resale pricing for: ${lookupStr}
@@ -423,8 +474,8 @@ Verdict: list = avg over $10 good demand. maybe = $5-10 or slow. skip = under $5
     if(!match) throw new Error('Bad response: ' + raw.slice(0,80));
     const result = JSON.parse(match[0]);
 
-    // Override name/platform with what ScanDex found if Claude doesn't know it
-    if (foundViaProxy && (!result.name || result.name === 'Unknown')) {
+    // Keep ScanDex name if Claude returns unknown
+    if (productName && (!result.name || result.name === 'Unknown')) {
       result.name = productName;
       result.platform = platform;
       result.type = type;
@@ -485,6 +536,13 @@ function showResult(barcode, r){
   checkHistory = [entry, ...checkHistory.filter(h=>h.barcode!==barcode)].slice(0, 20);
   localStorage.setItem(HISTORY_KEY, JSON.stringify(checkHistory));
   renderHistory();
+}
+
+function checkByName(barcode) {
+  const inp = document.getElementById('nameInput');
+  const name = inp ? inp.value.trim() : '';
+  if (!name) { showToast('Enter the item name first'); return; }
+  askClaudeForPricing(barcode, name, '', 'general');
 }
 
 function nextItem(){
