@@ -318,37 +318,79 @@ function doCheck(){
   runCheck(barcode);
 }
 
+const WORKER_URL = 'https://ebay-price-proxy.timsoconnor.workers.dev';
+
 async function runCheck(barcode){
   const resultArea = document.getElementById('resultArea');
-  resultArea.innerHTML = `
-    <div class="loading-card">
-      <div class="spinner"></div>
-      <div class="loading-text">Checking value…</div>
-      <div class="loading-sub" id="loadSub">Looking up ${barcode}</div>
-    </div>`;
   document.getElementById('historySection').style.display = 'none';
 
-  const apiPrompt = `You are a resale price expert specialising in video games and action figures. 
-Look up the product with barcode/UPC "${barcode}".
+  const showLoading = (text, sub) => {
+    resultArea.innerHTML = `
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <div class="loading-text">${text}</div>
+        <div class="loading-sub">${sub}</div>
+      </div>`;
+  };
 
-Return ONLY valid JSON, no markdown, no explanation:
+  const showError = (msg) => {
+    resultArea.innerHTML = `
+      <div class="verdict-card" style="border-color:var(--border);">
+        <div class="verdict-body" style="padding:20px;">
+          <div class="reasoning" style="color:var(--red);">⚠ ${msg}</div>
+          <button class="next-btn" onclick="doCheck()" style="margin-top:10px;">Try again</button>
+        </div>
+      </div>`;
+    renderHistory();
+  };
+
+  // Step 1: look up barcode via Cloudflare Worker
+  showLoading('Looking up barcode…', 'Checking ScanDex + UPC databases');
+  let productName = '';
+  let platform = '';
+  let type = 'general';
+  let foundViaProxy = false;
+
+  try {
+    const r = await fetch(`${WORKER_URL}/?barcode=${barcode}`);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.found && d.name) {
+        productName = d.name;
+        platform = d.platform || '';
+        type = d.type || 'general';
+        foundViaProxy = true;
+      }
+    }
+  } catch(e) {}
+
+  // Step 2: ask Claude for pricing using name (or barcode if not found)
+  const lookupStr = foundViaProxy
+    ? `"${productName}"${platform ? ' for ' + platform : ''}`
+    : `barcode ${barcode} (product name unknown)`;
+
+  showLoading('Checking resale value…', foundViaProxy ? `Found: ${productName}` : 'Estimating from barcode');
+
+  const apiPrompt = `You are a resale price expert for video games and action figures.
+Give me current eBay resale pricing for: ${lookupStr}
+
+Return ONLY valid JSON, no markdown:
 {
   "found": true,
   "name": "Full product name",
-  "platform": "e.g. PlayStation 4 or Marvel Legends or N/A",
+  "platform": "e.g. PlayStation 4 or N/A",
   "type": "game or figure or other",
   "low": "lowest recent eBay sold price e.g. $8.00",
-  "avg": "average recent eBay sold price e.g. $14.00", 
+  "avg": "average recent eBay sold price e.g. $14.00",
   "high": "highest recent eBay sold price e.g. $22.00",
   "verdict": "list or maybe or skip",
-  "verdict_reason": "One sentence explaining why e.g. Consistently sells $12-18, good demand, easy to ship.",
-  "condition_note": "One sentence tip about condition e.g. Disc-only copies sell for half. Complete with manual adds $3-5."
+  "verdict_reason": "One sentence explaining why.",
+  "condition_note": "One sentence tip about condition that affects price."
 }
 
-Verdict guide: list = avg over $10 and good demand. maybe = $5-10 or inconsistent sales. skip = under $5 or very slow sales.
-If barcode not found, set found false, use best guess for name, and note uncertainty in verdict_reason.`;
+Verdict: list = avg over $10 good demand. maybe = $5-10 or slow. skip = under $5 or very slow.`;
 
-  try{
+  try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25000);
 
@@ -380,18 +422,19 @@ If barcode not found, set found false, use best guess for name, and note uncerta
     const match = raw.match(/\{[\s\S]*\}/);
     if(!match) throw new Error('Bad response: ' + raw.slice(0,80));
     const result = JSON.parse(match[0]);
+
+    // Override name/platform with what ScanDex found if Claude doesn't know it
+    if (foundViaProxy && (!result.name || result.name === 'Unknown')) {
+      result.name = productName;
+      result.platform = platform;
+      result.type = type;
+    }
+
     showResult(barcode, result);
 
-  } catch(e){
-    const msg = e.name === 'AbortError' ? 'Request timed out — check your connection' : e.message;
-    resultArea.innerHTML = `
-      <div class="verdict-card" style="border-color:var(--border);">
-        <div class="verdict-body" style="padding:20px;">
-          <div class="reasoning" style="color:var(--red);">⚠ ${msg}</div>
-          <button class="next-btn" onclick="doCheck()" style="margin-top:10px;">Try again</button>
-        </div>
-      </div>`;
-    renderHistory();
+  } catch(e) {
+    const msg = e.name === 'AbortError' ? 'Timed out — check your connection' : e.message;
+    showError(msg);
   }
 }
 
