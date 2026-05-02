@@ -5,229 +5,254 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>eBay Quick Lister</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Quick Price Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;--border2:#3a3a3a;
-  --text:#f0ede8;--text2:#888;--text3:#555;--accent:#e8d5a3;--accent2:#c4a96b;
-  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--radius:14px;--radius-sm:10px;
+  --bg:#0c0c0c;--surface:#161616;--surface2:#1e1e1e;--border:#272727;--border2:#333;
+  --text:#f5f0e8;--text2:#7a7570;--text3:#3f3c38;
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);--green-border:rgba(34,197,94,0.25);
+  --yellow:#eab308;--yellow-bg:rgba(234,179,8,0.1);--yellow-border:rgba(234,179,8,0.25);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);--red-border:rgba(239,68,68,0.25);
+  --accent:#f0a500;
+  --radius:16px;--radius-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
-#app{min-height:100vh;display:flex;flex-direction:column;}
 
-.header{padding:56px 20px 18px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
-.header-logo{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.header h1{font-size:17px;font-weight:600;color:var(--text);}
-.header p{font-size:12px;color:var(--text2);margin-top:2px;}
+/* Header */
+.header{
+  padding:52px 20px 16px;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.header-left h1{
+  font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.04em;
+  color:var(--text);line-height:1;
+}
+.header-left p{font-size:12px;color:var(--text2);margin-top:3px;}
+.key-btn{
+  background:none;border:1px solid var(--border2);border-radius:8px;
+  padding:7px 12px;font-size:11px;color:var(--text2);cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.key-btn.set{color:var(--accent);border-color:rgba(240,165,0,0.3);}
 
-.tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;}
-.tab{flex:1;padding:12px 0;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* Entry area */
+.entry-area{padding:20px;}
+.barcode-wrap{position:relative;margin-bottom:12px;}
+.barcode-input{
+  width:100%;padding:18px 52px 18px 18px;
+  font-family:'DM Mono',monospace;font-size:20px;font-weight:500;
+  letter-spacing:0.06em;text-align:center;
+  background:var(--surface);border:2px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);
+  -webkit-appearance:none;transition:border-color 0.2s;
+}
+.barcode-input:focus{outline:none;border-color:var(--accent);}
+.barcode-input::placeholder{color:var(--text3);font-size:14px;letter-spacing:0;}
+.clear-x{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border-radius:50%;background:var(--border2);
+  border:none;color:var(--text2);font-size:13px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+}
+.clear-x.show{display:flex;}
 
-.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 60px;}
-.page{display:none;}.page.active{display:block;}
+.btn-row{display:grid;grid-template-columns:1fr 2fr;gap:10px;}
+.btn{
+  padding:15px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;
+  cursor:pointer;border:none;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:opacity 0.15s,transform 0.1s;
+}
+.btn:active{opacity:0.8;transform:scale(0.97);}
+.btn-paste{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.btn-check{background:var(--accent);color:#000;}
 
-.tip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;}
-.tip-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.tip-icon{font-size:22px;}
-.tip-title{font-size:15px;font-weight:600;color:var(--text);}
-.tip-steps{display:flex;flex-direction:column;gap:8px;}
-.tip-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.5;}
-.tip-num{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0;margin-top:1px;}
+/* Result card */
+.result-area{padding:0 20px 20px;}
 
-.barcode-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
-.entry-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:block;}
-.barcode-field-wrap{position:relative;margin-bottom:12px;}
-.barcode-field{width:100%;padding:16px 48px 16px 16px;border-radius:var(--radius-sm);font-size:22px;font-weight:500;letter-spacing:0.05em;font-family:'DM Mono',monospace;border:2px solid var(--border2);background:var(--surface2);color:var(--text);-webkit-appearance:none;transition:border-color 0.2s;text-align:center;}
-.barcode-field:focus{outline:none;border-color:var(--accent2);}
-.barcode-field::placeholder{color:var(--text3);font-size:16px;letter-spacing:0;}
-.clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--border2);border:none;color:var(--text2);font-size:14px;cursor:pointer;display:none;align-items:center;justify-content:center;}
-.clear-btn.visible{display:flex;}
-.entry-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.entry-btn{padding:14px 12px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.entry-btn:active{transform:scale(0.97);opacity:0.8;}
-.entry-btn.primary{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;grid-column:span 2;}
+.verdict-card{
+  border-radius:var(--radius);overflow:hidden;margin-bottom:12px;
+  border:2px solid var(--border);
+  animation:slideUp 0.3s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;}
-.section-action{font-size:11px;color:var(--text3);cursor:pointer;}
-.recents-list{display:flex;flex-direction:column;gap:8px;}
-.recent-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
-.recent-chip:active{border-color:var(--accent2);}
-.recent-barcode{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text);flex:1;}
-.recent-name{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
-.recent-arrow{color:var(--text3);font-size:16px;flex-shrink:0;}
+.verdict-header{
+  padding:20px 20px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.verdict-title{font-size:18px;font-weight:600;color:var(--text);line-height:1.3;flex:1;}
+.verdict-platform{
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;
+  background:var(--surface2);color:var(--text2);white-space:nowrap;flex-shrink:0;
+  text-transform:uppercase;letter-spacing:0.05em;margin-top:2px;
+}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;}
-.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.3;}
+.verdict-body{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;}
 
-.loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:16px;}
-.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;}
+/* The big verdict */
+.verdict-pill{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px;border-radius:var(--radius-sm);
+}
+.verdict-pill.list{background:var(--green-bg);border:1px solid var(--green-border);}
+.verdict-pill.maybe{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+.verdict-pill.skip{background:var(--red-bg);border:1px solid var(--red-border);}
+.verdict-label{font-size:13px;font-weight:600;}
+.verdict-pill.list .verdict-label{color:var(--green);}
+.verdict-pill.maybe .verdict-label{color:var(--yellow);}
+.verdict-pill.skip .verdict-label{color:var(--red);}
+.verdict-price{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.04em;}
+.verdict-pill.list .verdict-price{color:var(--green);}
+.verdict-pill.maybe .verdict-price{color:var(--yellow);}
+.verdict-pill.skip .verdict-price{color:var(--red);}
+
+/* Price breakdown */
+.price-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+}
+.price-cell{
+  background:var(--surface2);border-radius:var(--radius-sm);
+  padding:12px;text-align:center;
+}
+.price-cell-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.price-cell-value{font-size:16px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace;}
+
+/* Reasoning */
+.reasoning{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:14px;
+  font-size:13px;color:var(--text2);line-height:1.6;
+}
+
+/* Next btn */
+.next-btn{
+  width:100%;padding:15px;border-radius:var(--radius-sm);
+  background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);font-size:15px;font-weight:500;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.next-btn:active{opacity:0.7;}
+
+/* Loading */
+.loading-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:36px 20px;text-align:center;
+  margin-bottom:12px;
+}
+.spinner{
+  width:32px;height:32px;border:2px solid var(--border2);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.7s linear infinite;margin:0 auto 14px;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:var(--text2);}
-.loading-sub{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
+.loading-text{font-size:15px;color:var(--text);font-weight:500;}
+.loading-sub{font-size:12px;color:var(--text2);margin-top:6px;}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
-.card-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.card-title{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.07em;}
-.barcode-tag{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);padding:3px 8px;border-radius:6px;color:var(--text2);}
-.card-body{padding:14px 16px;}
-.field{margin-bottom:13px;}.field:last-child{margin-bottom:0;}
-.label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;display:block;}
-.field-input{width:100%;padding:11px 13px;border-radius:var(--radius-sm);font-size:14px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none;resize:vertical;}
-.field-input:focus{outline:none;border-color:var(--accent2);}
-select.field-input{appearance:none;-webkit-appearance:none;}
-.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* History */
+.history-section{padding:0 20px 40px;}
+.section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.section-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;}
+.section-clear{font-size:11px;color:var(--text3);cursor:pointer;}
 
-.found-banner{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--green);}
-.not-found-banner{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--red);}
-
-.action-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;transition:all 0.15s;width:100%;margin-bottom:10px;}
-.action-btn:active{opacity:0.7;transform:scale(0.98);}
-.action-btn.accent{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600;}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.action-row .action-btn{margin-bottom:0;}
-
-.history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;}
-.history-item:active{border-color:var(--accent2);}
-.history-thumb{width:42px;height:42px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.history-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:8px;cursor:pointer;
+}
+.history-item:active{border-color:var(--border2);}
+.history-icon{font-size:18px;flex-shrink:0;}
 .history-info{flex:1;min-width:0;}
-.history-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.history-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
-.history-arrow{color:var(--text3);font-size:18px;}
+.history-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.history-meta{font-size:11px;color:var(--text2);margin-top:1px;font-family:'DM Mono',monospace;}
+.history-verdict{font-size:12px;font-weight:600;flex-shrink:0;}
+.history-verdict.list{color:var(--green);}
+.history-verdict.maybe{color:var(--yellow);}
+.history-verdict.skip{color:var(--red);}
 
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:12px 22px;border-radius:100px;font-size:14px;font-weight:500;opacity:0;transition:all 0.25s;z-index:999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;}
+/* Key modal */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);
+  z-index:200;padding:40px 20px;
+}
+.modal-bg.show{display:flex;align-items:center;justify-content:center;}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:24px;width:100%;max-width:400px;
+}
+.modal h3{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;}
+.modal-input{
+  width:100%;padding:13px;background:var(--surface2);
+  border:1px solid var(--border2);border-radius:var(--radius-sm);
+  color:var(--text);font-family:'DM Mono',monospace;font-size:13px;
+  -webkit-appearance:none;margin-bottom:12px;
+}
+.modal-input:focus{outline:none;border-color:var(--accent);}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-cancel{padding:12px;background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text2);font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.modal-save{padding:12px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#000;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+.toast{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--text);color:var(--bg);padding:11px 20px;
+  border-radius:100px;font-size:13px;font-weight:500;
+  opacity:0;transition:all 0.25s;z-index:999;
+  white-space:nowrap;pointer-events:none;
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="header">
-    <div class="header-logo">📦</div>
-    <div><h1>eBay Quick Lister</h1><p>Games · Action Figures · More</p></div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Price Check</h1>
+    <p>Games · Figures · Collectibles</p>
   </div>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('scan')">Enter Barcode</button>
-    <button class="tab" onclick="switchTab('listing')">Listing</button>
-    <button class="tab" onclick="switchTab('history')">History</button>
+  <button class="key-btn" id="keyBtn" onclick="showKeyModal()">⚙ API Key</button>
+</div>
+
+<div class="entry-area">
+  <div class="barcode-wrap">
+    <input class="barcode-input" id="barcodeInput" type="text" inputmode="numeric"
+      placeholder="Enter barcode…" autocomplete="off" autocorrect="off" spellcheck="false"
+      oninput="onInput()"/>
+    <button class="clear-x" id="clearX" onclick="clearInput()">✕</button>
   </div>
-  <div class="content">
-
-    <!-- ENTRY TAB -->
-    <div class="page active" id="tab-scan">
-      <div class="tip-card">
-        <div class="tip-header"><span class="tip-icon">📱</span><span class="tip-title">How to get the barcode</span></div>
-        <div class="tip-steps">
-          <div class="tip-step"><div class="tip-num">1</div><span>Open your iPhone <strong>Camera app</strong> and point it at the barcode</span></div>
-          <div class="tip-step"><div class="tip-num">2</div><span>A <strong>yellow banner</strong> appears — long press it to copy the number</span></div>
-          <div class="tip-step"><div class="tip-num">3</div><span>Come back here and tap <strong>Paste</strong> — listing fills in automatically</span></div>
-        </div>
-      </div>
-
-      <div class="barcode-entry">
-        <label class="entry-label">Barcode / UPC / EAN</label>
-        <div class="barcode-field-wrap">
-          <input class="barcode-field" id="barcodeField" type="text" inputmode="numeric"
-            placeholder="e.g. 852103006362" autocomplete="off" autocorrect="off" spellcheck="false"
-            oninput="onBarcodeInput()"/>
-          <button class="clear-btn" id="clearBtn" onclick="clearField()">✕</button>
-        </div>
-        <div class="entry-actions">
-          <button class="entry-btn" onclick="pasteBarcode()">📋 Paste</button>
-          <button class="entry-btn" onclick="showToast('Camera app → point at barcode → long press yellow banner → Copy')">📷 Tip</button>
-          <button class="entry-btn primary" onclick="doLookup()">Look up barcode →</button>
-        </div>
-      </div>
-
-      <div id="recentsSection" style="display:none">
-        <div class="section-header">
-          <span class="section-label">Recent lookups</span>
-          <span class="section-action" onclick="clearRecents()">Clear</span>
-        </div>
-        <div class="recents-list" id="recentsList"></div>
-      </div>
-
-      <div style="margin-top:24px;text-align:center;">
-        <span id="keyStatus" style="font-size:12px;color:var(--text3);cursor:pointer;" onclick="changeKey()"></span>
-      </div>
-    </div>
-
-    <!-- LISTING TAB -->
-    <div class="page" id="tab-listing">
-      <div id="listingEmpty" class="empty-state"><div class="empty-icon">🏷️</div><p>Enter a barcode to generate<br>your eBay listing</p></div>
-      <div id="listingLoading" class="loading-card" style="display:none">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Looking up product…</div>
-        <div class="loading-sub" id="loadingSub">Claude is searching the web for this item</div>
-      </div>
-      <div id="listingForm" style="display:none">
-        <div id="foundBanner"></div>
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Listing Details</span>
-            <span class="barcode-tag" id="barcodeTag">—</span>
-          </div>
-          <div class="card-body">
-            <div class="field"><label class="label">Title (max 80 chars)</label><input class="field-input" id="fTitle" type="text" maxlength="80"/></div>
-            <div class="field"><label class="label">Category</label><input class="field-input" id="fCategory" type="text"/></div>
-            <div class="field"><label class="label">Platform / Brand</label><input class="field-input" id="fBrand" type="text"/></div>
-            <div class="field"><label class="label">Condition</label>
-              <select class="field-input" id="fCondition">
-                <option>New</option><option>Like New</option><option selected>Very Good</option>
-                <option>Good</option><option>Acceptable</option><option>For parts or not working</option>
-              </select>
-            </div>
-            <div class="field"><label class="label">Description</label><textarea class="field-input" id="fDesc" rows="5"></textarea></div>
-            <div class="field"><label class="label">Item Specifics</label><textarea class="field-input" id="fSpecs" rows="3"></textarea></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">Pricing & Shipping</span></div>
-          <div class="card-body">
-            <div class="price-grid">
-              <div class="field"><label class="label">Buy It Now</label><input class="field-input" id="fPrice" type="text" placeholder="$0.00"/></div>
-              <div class="field"><label class="label">Start Bid</label><input class="field-input" id="fBid" type="text" placeholder="Optional"/></div>
-              <div class="field"><label class="label">Shipping</label><input class="field-input" id="fShipping" type="text" placeholder="$0.00"/></div>
-              <div class="field"><label class="label">Quantity</label><input class="field-input" id="fQty" type="number" value="1" min="1"/></div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">Search Keywords</span></div>
-          <div class="card-body"><div class="field"><input class="field-input" id="fTags" type="text" placeholder="keyword1, keyword2…"/></div></div>
-        </div>
-        <div class="action-row">
-          <button class="action-btn accent" onclick="showSharePanel()">Share listing text</button>
-          <button class="action-btn" onclick="openEbay()">Open eBay ↗</button>
-        </div>
-        <button class="action-btn" onclick="scanAnother()">← Enter another barcode</button>
-      </div>
-    </div>
-
-    <!-- HISTORY TAB -->
-    <div class="page" id="tab-history">
-      <div id="historyEmpty" class="empty-state"><div class="empty-icon">📋</div><p>Your looked-up items<br>will appear here</p></div>
-      <div id="historyList"></div>
-    </div>
+  <div class="btn-row">
+    <button class="btn btn-paste" onclick="doPaste()">📋 Paste</button>
+    <button class="btn btn-check" onclick="doCheck()">Check Value →</button>
   </div>
 </div>
 
-<!-- Share panel -->
-<div id="sharePanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;padding:20px;box-sizing:border-box;overflow-y:auto;">
-  <div style="background:var(--surface);border-radius:var(--radius);overflow:hidden;margin-top:40px;">
-    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:14px;font-weight:600;color:var(--text);">Listing Text</span>
-      <button onclick="closeSharePanel()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:0 4px;">✕</button>
-    </div>
-    <div style="padding:14px 16px;">
-      <p style="font-size:12px;color:var(--text2);margin-bottom:10px;">Tap the text area below, then tap <strong>Select All</strong> → <strong>Copy</strong> to copy everything.</p>
-      <textarea id="shareText" style="width:100%;height:320px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;line-height:1.6;padding:12px;resize:none;box-sizing:border-box;" readonly onclick="this.select();this.setSelectionRange(0,99999);"></textarea>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
-        <button onclick="tryCopy()" style="padding:13px;background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">Copy all</button>
-        <button onclick="shareNative()" style="padding:13px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif;">Share… ↗</button>
-      </div>
+<div class="result-area" id="resultArea"></div>
+
+<div class="history-section" id="historySection" style="display:none">
+  <div class="section-hdr">
+    <span class="section-title">Recent checks</span>
+    <span class="section-clear" onclick="clearHistory()">Clear all</span>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<!-- Key modal -->
+<div class="modal-bg" id="keyModal">
+  <div class="modal">
+    <h3>Anthropic API Key</h3>
+    <p>Saved on this device only. Get yours at console.anthropic.com</p>
+    <input class="modal-input" id="keyInput" type="password" placeholder="sk-ant-…"/>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="hideKeyModal()">Cancel</button>
+      <button class="modal-save" onclick="saveKey()">Save</button>
     </div>
   </div>
 </div>
@@ -235,145 +260,99 @@ select.field-input{appearance:none;-webkit-appearance:none;}
 <div class="toast" id="toast"></div>
 
 <script>
-function getKey() { return localStorage.getItem('claude_api_key') || ''; }
-function setKey(k) { localStorage.setItem('claude_api_key', k.trim()); }
+const STORAGE_KEY = 'claude_api_key';
+const HISTORY_KEY = 'price_check_history';
 
-let currentBarcode = '';
-let history = JSON.parse(localStorage.getItem('ebay_history') || '[]');
-let recents = JSON.parse(localStorage.getItem('ebay_recents') || '[]');
+let checkHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  ['scan','listing','history'].forEach((n,i) => {
-    document.querySelectorAll('.tab')[i].classList.toggle('active', n === tab);
-    document.getElementById('tab-'+n).classList.toggle('active', n === tab);
-  });
-  if (tab === 'history') renderHistory();
-  if (tab === 'scan') function changeKey() {
-  const key = prompt('Paste your Anthropic API key:');
-  if (key && key.trim()) {
-    setKey(key);
-    updateKeyStatus();
-    showToast('API key saved!');
-  }
+// ── Key management ────────────────────────────────────────────────────────────
+function getKey(){ return localStorage.getItem(STORAGE_KEY) || ''; }
+function updateKeyBtn(){
+  const btn = document.getElementById('keyBtn');
+  btn.classList.toggle('set', !!getKey());
+  btn.textContent = getKey() ? '🔑 Key set' : '⚙ API Key';
 }
-function updateKeyStatus() {
-  const el = document.getElementById('keyStatus');
-  if (!el) return;
-  const k = getKey();
-  el.textContent = k ? '🔑 API key set — tap to change' : '⚠ No API key set — tap to add';
-  el.style.color = k ? 'var(--text3)' : 'var(--red)';
+function showKeyModal(){
+  document.getElementById('keyInput').value = getKey();
+  document.getElementById('keyModal').classList.add('show');
 }
-
-renderRecents();
-updateKeyStatus();
+function hideKeyModal(){ document.getElementById('keyModal').classList.remove('show'); }
+function saveKey(){
+  const k = document.getElementById('keyInput').value.trim();
+  if(k){ localStorage.setItem(STORAGE_KEY, k); showToast('Key saved!'); }
+  else { localStorage.removeItem(STORAGE_KEY); showToast('Key cleared'); }
+  hideKeyModal(); updateKeyBtn();
 }
 
 // ── Input ─────────────────────────────────────────────────────────────────────
-function onBarcodeInput() {
-  const val = document.getElementById('barcodeField').value;
-  document.getElementById('clearBtn').classList.toggle('visible', val.length > 0);
+function onInput(){
+  document.getElementById('clearX').classList.toggle('show', document.getElementById('barcodeInput').value.length > 0);
 }
-function clearField() {
-  document.getElementById('barcodeField').value = '';
-  document.getElementById('clearBtn').classList.remove('visible');
-  document.getElementById('barcodeField').focus();
+function clearInput(){
+  document.getElementById('barcodeInput').value = '';
+  document.getElementById('clearX').classList.remove('show');
+  document.getElementById('barcodeInput').focus();
 }
-async function pasteBarcode() {
-  try {
+async function doPaste(){
+  try{
     const text = await navigator.clipboard.readText();
     const cleaned = text.replace(/\s/g,'').trim();
-    if (cleaned.length >= 6) {
-      document.getElementById('barcodeField').value = cleaned;
-      onBarcodeInput();
+    if(cleaned.length >= 6){
+      document.getElementById('barcodeInput').value = cleaned;
+      onInput();
       showToast('Pasted!');
-      if (cleaned.length >= 8) setTimeout(doLookup, 400);
-    } else {
-      showToast('Nothing useful on clipboard');
-    }
-  } catch(e) {
-    document.getElementById('barcodeField').focus();
-    showToast('Tap and hold the field → Paste');
+      if(cleaned.length >= 8) setTimeout(doCheck, 300);
+    } else { showToast('Nothing on clipboard'); }
+  } catch(e){
+    document.getElementById('barcodeInput').focus();
+    showToast('Tap and hold field → Paste');
   }
 }
-function doLookup() {
-  const val = document.getElementById('barcodeField').value.trim();
-  if (!val) { showToast('Enter a barcode first'); return; }
-  handleBarcode(val);
-}
-document.getElementById('barcodeField').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLookup();
-});
+document.getElementById('barcodeInput').addEventListener('keydown', e => { if(e.key==='Enter') doCheck(); });
 
-// ── Core flow ─────────────────────────────────────────────────────────────────
-function handleBarcode(code) {
-  currentBarcode = code;
-  recents = [code, ...recents.filter(r => r !== code)].slice(0, 8);
-  localStorage.setItem('ebay_recents', JSON.stringify(recents));
-  switchTab('listing');
-  document.getElementById('listingEmpty').style.display = 'none';
-  document.getElementById('listingLoading').style.display = 'block';
-  document.getElementById('listingForm').style.display = 'none';
-  lookupWithClaude(code);
+// ── Main check ────────────────────────────────────────────────────────────────
+function doCheck(){
+  const barcode = document.getElementById('barcodeInput').value.trim();
+  if(!barcode){ showToast('Enter a barcode first'); return; }
+  if(!getKey()){ showKeyModal(); return; }
+  runCheck(barcode);
 }
 
-// ── Claude lookup ─────────────────────────────────────────────────────────────
-async function lookupWithClaude(barcode) {
-  const setStatus = (text, sub) => {
-    document.getElementById('loadingText').textContent = text;
-    document.getElementById('loadingSub').textContent = sub;
-  };
+async function runCheck(barcode){
+  const resultArea = document.getElementById('resultArea');
+  resultArea.innerHTML = `
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-text">Checking value…</div>
+      <div class="loading-sub" id="loadSub">Looking up ${barcode}</div>
+    </div>`;
+  document.getElementById('historySection').style.display = 'none';
 
-  // Check for API key
-  if (!getKey()) {
-    const key = prompt('Paste your Anthropic API key below.\n\nIt will be saved on this device only and never uploaded to GitHub.');
-    if (!key || !key.trim()) {
-      document.getElementById('listingLoading').style.display = 'none';
-      document.getElementById('listingForm').style.display = 'block';
-      document.getElementById('barcodeTag').textContent = barcode;
-      document.getElementById('foundBanner').innerHTML = '<div class="not-found-banner">⚠ No API key — tap \'Enter another barcode\' and try again after setting your key.</div>';
-      document.getElementById('fSpecs').value = 'UPC: ' + barcode;
-      return;
-    }
-    setKey(key);
-  }
+  const apiPrompt = `You are a resale price expert specialising in video games and action figures. 
+Look up the product with barcode/UPC "${barcode}".
 
-  setStatus('Searching for product…', 'Barcode: ' + barcode);
-
-  const apiPrompt = `You are an eBay listing assistant. Look up the product with barcode/UPC "${barcode}" and return ONLY a valid JSON object, no markdown, no explanation.
-
-This is likely a video game or action figure. Use your training knowledge to identify it.
-
-Return this exact JSON structure:
+Return ONLY valid JSON, no markdown, no explanation:
 {
   "found": true,
-  "type": "game",
-  "title": "eBay listing title max 80 chars",
-  "brand": "platform name or brand e.g. PlayStation 4",
-  "category": "full eBay category path e.g. Video Games > Sony PlayStation 4",
-  "condition": "Very Good",
-  "description": "3-4 sentence eBay product description",
-  "specs": "key specs one per line e.g. Platform: PS4\\nTitle: Among the Sleep\\nUPC: 852103006362",
-  "price": "suggested resale price e.g. $12.99",
-  "shipping": "estimated shipping cost e.g. $5.00",
-  "tags": "comma separated search keywords"
+  "name": "Full product name",
+  "platform": "e.g. PlayStation 4 or Marvel Legends or N/A",
+  "type": "game or figure or other",
+  "low": "lowest recent eBay sold price e.g. $8.00",
+  "avg": "average recent eBay sold price e.g. $14.00", 
+  "high": "highest recent eBay sold price e.g. $22.00",
+  "verdict": "list or maybe or skip",
+  "verdict_reason": "One sentence explaining why e.g. Consistently sells $12-18, good demand, easy to ship.",
+  "condition_note": "One sentence tip about condition e.g. Disc-only copies sell for half. Complete with manual adds $3-5."
 }
 
-If not found set found to false and fill in what you can. Type should be "game", "figure", or "general".`;
+Verdict guide: list = avg over $10 and good demand. maybe = $5-10 or inconsistent sales. skip = under $5 or very slow sales.
+If barcode not found, set found false, use best guess for name, and note uncertainty in verdict_reason.`;
 
-  // 20 second timeout with countdown
-  const controller = new AbortController();
-  let secs = 20;
-  const countdown = setInterval(() => {
-    secs--;
-    setStatus('Asking Claude…', `Timeout in ${secs}s — if this hangs, check your API key`);
-    if (secs <= 0) clearInterval(countdown);
-  }, 1000);
-  const timer = setTimeout(() => { controller.abort(); clearInterval(countdown); }, 20000);
+  try{
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 25000);
 
-  try {
-    setStatus('Asking Claude…', 'Using built-in knowledge + training data');
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       signal: controller.signal,
       headers: {
@@ -384,211 +363,144 @@ If not found set found to false and fill in what you can. Type should be "game",
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
+        max_tokens: 600,
         messages: [{ role: 'user', content: apiPrompt }]
       })
     });
 
     clearTimeout(timer);
-    clearInterval(countdown);
 
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`API ${response.status}: ${err.slice(0,120)}`);
+    if(!r.ok){
+      const err = await r.text();
+      throw new Error(`API ${r.status}: ${err.slice(0,100)}`);
     }
 
-    const data = await response.json();
-    const rawText = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON returned — raw: ' + rawText.slice(0,100));
-    const product = JSON.parse(jsonMatch[0]);
-    populateListing(barcode, product);
+    const data = await r.json();
+    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const match = raw.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('Bad response: ' + raw.slice(0,80));
+    const result = JSON.parse(match[0]);
+    showResult(barcode, result);
 
-  } catch(e) {
-    clearTimeout(timer);
-    clearInterval(countdown);
-    const msg = e.name === 'AbortError' ? 'Request timed out after 30s' : e.message;
-    document.getElementById('listingLoading').style.display = 'none';
-    document.getElementById('listingForm').style.display = 'block';
-    document.getElementById('barcodeTag').textContent = barcode;
-    document.getElementById('foundBanner').innerHTML =
-      `<div class="not-found-banner">⚠ ${msg.slice(0,120)}</div>`;
-    document.getElementById('fSpecs').value = `UPC: ${barcode}`;
+  } catch(e){
+    const msg = e.name === 'AbortError' ? 'Request timed out — check your connection' : e.message;
+    resultArea.innerHTML = `
+      <div class="verdict-card" style="border-color:var(--border);">
+        <div class="verdict-body" style="padding:20px;">
+          <div class="reasoning" style="color:var(--red);">⚠ ${msg}</div>
+          <button class="next-btn" onclick="doCheck()" style="margin-top:10px;">Try again</button>
+        </div>
+      </div>`;
+    renderHistory();
   }
 }
 
-// ── Populate form ─────────────────────────────────────────────────────────────
-function populateListing(barcode, product) {
-  document.getElementById('listingLoading').style.display = 'none';
-  document.getElementById('listingForm').style.display = 'block';
-  document.getElementById('barcodeTag').textContent = barcode;
+function showResult(barcode, r){
+  const icons = { game:'🎮', figure:'🦸', other:'📦' };
+  const icon = icons[r.type] || '📦';
+  const verdict = r.verdict || 'maybe';
+  const verdictText = { list:'✓ List it', maybe:'Maybe list', skip:'Skip it' };
 
-  const icons = { game: '🎮', figure: '🦸', general: '📦' };
-  const icon = icons[product.type] || '📦';
-
-  document.getElementById('foundBanner').innerHTML = product.found
-    ? `<div class="found-banner">${icon} Found — ${product.type === 'game' ? 'Video Game' : product.type === 'figure' ? 'Action Figure' : 'Product'} identified via web search</div>`
-    : `<div class="not-found-banner">⚠ Product not confirmed — review and edit before listing</div>`;
-
-  document.getElementById('fTitle').value = (product.title || '').slice(0, 80);
-  document.getElementById('fBrand').value = product.brand || '';
-  document.getElementById('fCategory').value = product.category || '';
-  document.getElementById('fCondition').value = product.condition || 'Very Good';
-  document.getElementById('fDesc').value = product.description || '';
-  document.getElementById('fSpecs').value = product.specs || `UPC: ${barcode}`;
-  document.getElementById('fPrice').value = product.price || '';
-  document.getElementById('fShipping').value = product.shipping || '$9.99';
-  document.getElementById('fTags').value = product.tags || '';
-
-  const entry = { barcode, name: product.title || 'Unknown', type: product.type || 'general', time: Date.now(), product };
-  history = [entry, ...history.filter(h => h.barcode !== barcode)].slice(0, 30);
-  localStorage.setItem('ebay_history', JSON.stringify(history));
-}
-
-// ── Actions ───────────────────────────────────────────────────────────────────
-function getListingText() {
-  return `TITLE: ${document.getElementById('fTitle').value}
-CATEGORY: ${document.getElementById('fCategory').value}
-PLATFORM/BRAND: ${document.getElementById('fBrand').value}
-CONDITION: ${document.getElementById('fCondition').value}
-UPC/BARCODE: ${currentBarcode}
-
-DESCRIPTION:
-${document.getElementById('fDesc').value}
-
-ITEM SPECIFICS:
-${document.getElementById('fSpecs').value}
-
-PRICING:
-Buy It Now: ${document.getElementById('fPrice').value}
-Start Bid: ${document.getElementById('fBid').value || 'N/A'}
-Shipping: ${document.getElementById('fShipping').value}
-Quantity: ${document.getElementById('fQty').value}
-
-KEYWORDS: ${document.getElementById('fTags').value}`;
-}
-
-function showSharePanel() {
-  const text = getListingText();
-  document.getElementById('shareText').value = text;
-  document.getElementById('sharePanel').style.display = 'block';
-  // Auto-select all text after a short delay
-  setTimeout(() => {
-    const ta = document.getElementById('shareText');
-    ta.focus();
-    ta.select();
-    ta.setSelectionRange(0, 99999);
-  }, 300);
-}
-
-function closeSharePanel() {
-  document.getElementById('sharePanel').style.display = 'none';
-}
-
-function tryCopy() {
-  const text = getListingText();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => { showToast('Copied!'); setTimeout(closeSharePanel, 800); })
-      .catch(() => { showToast('Tap the text → Select All → Copy'); });
-  } else {
-    const ta = document.getElementById('shareText');
-    ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
-    try { document.execCommand('copy'); showToast('Copied!'); setTimeout(closeSharePanel, 800); }
-    catch(e) { showToast('Tap the text → Select All → Copy'); }
-  }
-}
-
-function shareNative() {
-  const text = getListingText();
-  if (navigator.share) {
-    navigator.share({ text })
-      .then(() => closeSharePanel())
-      .catch(() => {});
-  } else {
-    showToast('Use Copy instead');
-  }
-}
-function openEbay() {
-  window.open(`https://www.ebay.com/sl/sell?UPC=${encodeURIComponent(currentBarcode)}&title=${encodeURIComponent(document.getElementById('fTitle').value)}`, '_blank');
-}
-function scanAnother() {
-  currentBarcode = '';
-  document.getElementById('barcodeField').value = '';
-  document.getElementById('clearBtn').classList.remove('visible');
-  switchTab('scan');
-  setTimeout(() => document.getElementById('barcodeField').focus(), 300);
-}
-
-// ── Recents ───────────────────────────────────────────────────────────────────
-function renderRecents() {
-  const section = document.getElementById('recentsSection');
-  const list = document.getElementById('recentsList');
-  if (!recents.length) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  list.innerHTML = recents.map(code => {
-    const entry = history.find(h => h.barcode === code);
-    const name = entry ? entry.name : '';
-    return `<div class="recent-chip" onclick="useRecent('${code}')">
-      <div class="recent-barcode">${code}</div>
-      ${name ? `<div class="recent-name">${name}</div>` : ''}
-      <div class="recent-arrow">→</div>
+  const card = `
+    <div class="verdict-card" style="border-color:${verdict==='list'?'var(--green-border)':verdict==='skip'?'var(--red-border)':'var(--yellow-border)'};">
+      <div class="verdict-header">
+        <div class="verdict-title">${r.name || 'Unknown item'}</div>
+        ${r.platform && r.platform !== 'N/A' ? `<div class="verdict-platform">${r.platform}</div>` : ''}
+      </div>
+      <div class="verdict-body">
+        <div class="verdict-pill ${verdict}">
+          <div>
+            <div class="verdict-label">${icon} ${verdictText[verdict]}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px;">avg selling price</div>
+          </div>
+          <div class="verdict-price">${r.avg || '?'}</div>
+        </div>
+        <div class="price-row">
+          <div class="price-cell">
+            <div class="price-cell-label">Low</div>
+            <div class="price-cell-value">${r.low || '—'}</div>
+          </div>
+          <div class="price-cell">
+            <div class="price-cell-label">Avg</div>
+            <div class="price-cell-value">${r.avg || '—'}</div>
+          </div>
+          <div class="price-cell">
+            <div class="price-cell-label">High</div>
+            <div class="price-cell-value">${r.high || '—'}</div>
+          </div>
+        </div>
+        <div class="reasoning">${r.verdict_reason || ''}</div>
+        ${r.condition_note ? `<div class="reasoning" style="border-color:rgba(240,165,0,0.2);background:rgba(240,165,0,0.05);">💡 ${r.condition_note}</div>` : ''}
+        <button class="next-btn" onclick="nextItem()">Check another item →</button>
+      </div>
     </div>`;
-  }).join('');
+
+  document.getElementById('resultArea').innerHTML = card;
+
+  // Save to history
+  const entry = { barcode, name: r.name, type: r.type, verdict, avg: r.avg, platform: r.platform, time: Date.now() };
+  checkHistory = [entry, ...checkHistory.filter(h=>h.barcode!==barcode)].slice(0, 20);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(checkHistory));
+  renderHistory();
 }
-function useRecent(code) {
-  document.getElementById('barcodeField').value = code;
-  onBarcodeInput();
-  handleBarcode(code);
-}
-function clearRecents() {
-  recents = [];
-  localStorage.setItem('ebay_recents', JSON.stringify(recents));
-  renderRecents();
+
+function nextItem(){
+  document.getElementById('resultArea').innerHTML = '';
+  document.getElementById('barcodeInput').value = '';
+  document.getElementById('clearX').classList.remove('show');
+  document.getElementById('barcodeInput').focus();
+  renderHistory();
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
-function renderHistory() {
+function renderHistory(){
+  const section = document.getElementById('historySection');
   const list = document.getElementById('historyList');
-  const empty = document.getElementById('historyEmpty');
-  if (!history.length) { empty.style.display = 'block'; list.innerHTML = ''; return; }
-  empty.style.display = 'none';
-  const icons = { game: '🎮', figure: '🦸', general: '📦' };
-  list.innerHTML = history.map((item, i) => `
-    <div class="history-item" onclick="restoreItem(${i})">
-      <div class="history-thumb">${icons[item.type] || '📦'}</div>
+  if(!checkHistory.length){ section.style.display='none'; return; }
+  section.style.display = 'block';
+  const icons = { game:'🎮', figure:'🦸', other:'📦' };
+  const verdictText = { list:'List it', maybe:'Maybe', skip:'Skip' };
+  list.innerHTML = checkHistory.map((item,i) => `
+    <div class="history-item" onclick="recheck(${i})">
+      <div class="history-icon">${icons[item.type]||'📦'}</div>
       <div class="history-info">
-        <div class="history-name">${item.name || 'Unknown'}</div>
+        <div class="history-name">${item.name||'Unknown'}</div>
         <div class="history-meta">${item.barcode} · ${timeAgo(item.time)}</div>
       </div>
-      <div class="history-arrow">›</div>
+      <div class="history-verdict ${item.verdict}">${verdictText[item.verdict]||'?'} · ${item.avg||'?'}</div>
     </div>`).join('');
 }
-function restoreItem(i) {
-  const item = history[i];
-  currentBarcode = item.barcode;
-  document.getElementById('barcodeField').value = item.barcode;
-  onBarcodeInput();
-  switchTab('listing');
-  document.getElementById('listingEmpty').style.display = 'none';
-  document.getElementById('listingLoading').style.display = 'block';
-  document.getElementById('listingForm').style.display = 'none';
-  setTimeout(() => populateListing(item.barcode, item.product), 150);
-}
-function timeAgo(ts) {
-  const d = (Date.now()-ts)/1000;
-  if (d < 60) return 'just now';
-  if (d < 3600) return Math.floor(d/60)+'m ago';
-  if (d < 86400) return Math.floor(d/3600)+'h ago';
-  return Math.floor(d/86400)+'d ago';
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+
+function recheck(i){
+  const item = checkHistory[i];
+  document.getElementById('barcodeInput').value = item.barcode;
+  onInput();
+  runCheck(item.barcode);
 }
 
-renderRecents();
+function clearHistory(){
+  checkHistory = [];
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Init
+updateKeyBtn();
+renderHistory();
 </script>
 </body>
 </html>
